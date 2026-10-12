@@ -12,26 +12,24 @@ Guition **JC3248W535C** (ESP32-S3, 3.5" 480x320 touchscreen). There is also a si
 
 ## Running it
 
-You need Python 3.13 and, for the simulator, SDL2 (`brew install sdl2` on macOS).
+You need Python 3.13 from Homebrew and, for the simulator, SDL2 (`brew install sdl2`).
 
 ```sh
-python3.13 -m venv .venv
-.venv/bin/pip install esphome==2026.9.1
-cp secrets.example.yaml secrets.yaml   # then fill in the values
-
-.venv/bin/esphome run simulator.yaml          # simulator with made-up data
-.venv/bin/esphome run simulator-dexcom.yaml   # simulator with your Dexcom account (from secrets.yaml)
-.venv/bin/esphome run guition.yaml            # build and flash the board over USB
+make setup        # creates .venv with ESPHome and secrets.yaml (then fill in its values)
+make sim          # simulator with made-up data
+make sim-dexcom   # simulator with your Dexcom account (from secrets.yaml)
+make flash        # build and install on the board
+make              # list every command
 ```
 
 On the simulator, tap the screen to invert the colors and long-press it to pause the demo.
 
 ## Setting up the board
 
-1. Flash it once over USB with `esphome run guition.yaml`.
+1. Flash it once over USB with `make flash`.
 2. WiFi: connect to the `Glucia` network the board creates (password: your `ap_password`) and choose your WiFi.
 3. Dexcom: open `http://glucia.local` and enter the username and password of the **main** Dexcom account (the person wearing the sensor), with Share enabled and at least one follower.
 
-After that, the board installs new releases of this repo by itself (every 6 hours). They are published by pushing a tag (`git tag v1.2 && git push origin v1.2`), and the release binaries are built with this repo's own passwords: if you fork it, set the `AP_PASSWORD` and `OTA_PASSWORD` secrets and point `update: source:` in `hardware/guition.yaml` to your fork.
+After that, the board installs new releases of this repo by itself (every 6 hours). They are published with `make release VERSION=v1.2` (it pushes a tag), and the release binaries are built with this repo's own passwords: if you fork it, set the `AP_PASSWORD` and `OTA_PASSWORD` secrets and point `update: source:` in `hardware/guition.yaml` to your fork.
 
 The on-screen language is set in `guition.yaml` (`common/lang/es.yaml` or `en.yaml`).

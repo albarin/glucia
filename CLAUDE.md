@@ -25,17 +25,16 @@ Desktop display that shows the glucose from a Dexcom sensor in large type: numbe
 
 ```sh
 rm -rf .venv .esphome
-/opt/homebrew/bin/python3.13 -m venv .venv
-.venv/bin/pip install esphome==2026.9.1
-cp secrets.example.yaml secrets.yaml      # only if it doesn't exist; fill in the values
-
-.venv/bin/esphome run simulator.yaml      # simulator with demo data (needs SDL2: brew install sdl2)
-.venv/bin/esphome compile guition.yaml    # board firmware (slow the first time: downloads ESP-IDF)
+make setup        # .venv with ESPHome 2026.9.1 + secrets.yaml from the template (fill in the values)
+make sim          # simulator with demo data (needs SDL2: brew install sdl2)
+make build        # board firmware (slow the first time: downloads ESP-IDF)
+make              # every command: sim-dexcom, sim-reset, flash, logs, check, release, clean
 ```
 
 ## Layout
 
 ```
+Makefile                 # shortcuts: make sim, sim-dexcom, build, flash, release VERSION=v1.2…
 README.md                # short public intro: what it is and how to run it
 secrets.yaml             # passwords (never commit)
 secrets.example.yaml     # secrets.yaml template, no real data
@@ -80,7 +79,7 @@ The board firmware is published in this repo's public Releases, so it carries no
 - Only `ap_password` and `ota_password` go in the binary: they can be extracted from the public binary, so don't reuse important passwords.
 - `simulator-dexcom.yaml` does take the Dexcom credentials from `secrets.yaml` (via `substitutions`).
 
-Updates: `git tag v1.2 && git push origin v1.2` triggers the Action, which builds with `-s version v1.2` and creates the `v1.2` Release with `manifest.json`, `glucia.ota.bin` and `glucia.factory.bin`. The board checks `releases/latest/download/manifest.json` every 6 h (`update: platform: http_request`) and installs it if the version differs. Local builds have version `dev` and don't update themselves.
+Updates: `make release VERSION=v1.2` (only from a clean `main` in sync with GitHub) pushes the tag that triggers the Action, which builds with `-s version v1.2` and creates the `v1.2` Release with `manifest.json`, `glucia.ota.bin` and `glucia.factory.bin`. The board checks `releases/latest/download/manifest.json` every 6 h (`update: platform: http_request`) and installs it if the version differs. Local builds have version `dev` and don't update themselves.
 
 Safety net: `safe_mode` + ESP-IDF rollback (on by default). If the new firmware reboots before running for 1 minute, the bootloader goes back to the previous one. It doesn't protect against firmware that boots but misbehaves (e.g. no WiFi): always test on the home board before tagging. Rollback needs the bootloader to have been flashed over USB with this configuration (the first install).
 
