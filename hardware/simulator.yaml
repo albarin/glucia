@@ -1,4 +1,7 @@
 # Simulated hardware: a 480x320 window on your computer.
+substitutions:
+  headless: "false"   # true: no window (dev/screenshots.yaml)
+
 host:
 
 logger:
@@ -18,6 +21,7 @@ display:
     id: screen
     auto_clear_enabled: false
     update_interval: never
+    headless: ${headless}
     dimensions:
       width: 480
       height: 320

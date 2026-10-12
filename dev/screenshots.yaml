@@ -1,0 +1,60 @@
+# Renders every test case without a window and saves one screenshot per case:
+#   .venv/bin/esphome compile dev/screenshots.yaml
+#   (cd dev/shots && ../../.esphome/build/glucia-shots/.pioenvs/glucia-shots/program)
+substitutions:
+  headless: "true"
+  shots_lang: en   # dev/shots.sh es -> Spanish texts
+
+esphome:
+  name: glucia-shots
+  on_boot:
+    priority: -100
+    then:
+      - delay: 1s
+      - script.execute: { id: set_case, value: 118, previous: 117, trend_now: 4, age_s: 60, status: "" }
+      - delay: 300ms
+      - snapshot.take: { id: screen, filename: "1-in-range.bmp" }
+      - script.execute: { id: set_case, value: 155, previous: 145, trend_now: 3, age_s: 120, status: "" }
+      - delay: 300ms
+      - snapshot.take: { id: screen, filename: "2-in-range-rising.bmp" }
+      - script.execute: { id: set_case, value: 64, previous: 72, trend_now: 6, age_s: 30, status: "" }
+      - delay: 300ms
+      - snapshot.take: { id: screen, filename: "3-low-falling.bmp" }
+      - script.execute: { id: set_case, value: 48, previous: 60, trend_now: 7, age_s: 30, status: "" }
+      - delay: 300ms
+      - snapshot.take: { id: screen, filename: "4-very-low.bmp" }
+      - script.execute: { id: set_case, value: 215, previous: 205, trend_now: 2, age_s: 200, status: "" }
+      - delay: 300ms
+      - snapshot.take: { id: screen, filename: "5-high-rising.bmp" }
+      - script.execute: { id: set_case, value: 290, previous: 291, trend_now: 4, age_s: 90, status: "" }
+      - delay: 300ms
+      - snapshot.take: { id: screen, filename: "6-very-high.bmp" }
+      - script.execute: { id: set_case, value: 130, previous: 128, trend_now: 4, age_s: 1500, status: "" }
+      - delay: 300ms
+      - snapshot.take: { id: screen, filename: "7-stale.bmp" }
+      - script.execute: { id: set_case, value: 0, previous: 0, trend_now: 0, age_s: 0, status: "${t_dexcom_no_readings}" }
+      - delay: 300ms
+      - snapshot.take: { id: screen, filename: "8-no-data.bmp" }
+      - lambda: id(inverted) = true;
+      - script.execute: { id: set_case, value: 118, previous: 117, trend_now: 4, age_s: 60, status: "" }
+      - delay: 300ms
+      - snapshot.take: { id: screen, filename: "9-night-in-range.bmp" }
+      - script.execute: { id: set_case, value: 64, previous: 72, trend_now: 6, age_s: 30, status: "" }
+      - delay: 300ms
+      - snapshot.take: { id: screen, filename: "a-night-low.bmp" }
+      - script.execute: { id: set_case, value: 215, previous: 205, trend_now: 2, age_s: 200, status: "" }
+      - delay: 300ms
+      - snapshot.take: { id: screen, filename: "b-night-high.bmp" }
+      - script.execute: { id: set_case, value: 130, previous: 128, trend_now: 4, age_s: 1500, status: "" }
+      - delay: 300ms
+      - snapshot.take: { id: screen, filename: "c-night-stale.bmp" }
+      - lambda: exit(0);
+
+packages:
+  hardware: !include ../hardware/simulator.yaml
+  ui: !include ../common/ui-kids.yaml
+  lang: !include ../common/lang/${shots_lang}.yaml
+  data: !include scenarios.yaml
+
+interval: !remove
+touchscreen: !remove

@@ -46,15 +46,29 @@ hardware/
   guition.yaml           # ESP32-S3, PSRAM, QSPI, mipi_spi, touch, brightness, WiFi + rescue AP,
                          # local web page, OTA, automatic updates
 common/
-  ui.yaml                # globals, fonts, LVGL screen and the `render` script
+  ui.yaml                # classic UI: big number, arrow, countdown, last 8 readings
+  ui-kids.yaml           # kids UI: zone color, friendly face, level gauge, arrow (same contract)
   demo.yaml              # made-up readings every 15 s
   dexcom.yaml            # Dexcom Share login + read every 60 s
   lang/en.yaml, es.yaml  # on-screen texts (substitutions t_*)
+dev/
+  screenshots.yaml       # headless simulator that renders fixed cases (scenarios.yaml)
+  shots.sh               # dev/shots.sh [en|es] -> dev/shots/sheet.png with every case
 .github/workflows/
   firmware.yml           # on a v* tag: builds guition.yaml and publishes it
 ```
 
 The main files only combine `packages`: hardware + ui + lang + data.
+
+### Kids UI (`ui-kids.yaml`)
+
+For a young child who can't read numbers: the whole screen takes the zone color (red low, green in range, amber high), a face shows it and a gauge on the left shows the level. Design rules:
+- Faces are never sad or "bad": smile in range, "oh" when low, flat when high, asleep (eyes closed, "Zz", grey) without fresh data. Diabetes care advice is to avoid judging numbers as good or bad.
+- The eyes look up when rising and down when falling, so the trend reads without the arrow.
+- The number stays, small, for grown-ups. Stale data: grey, sleeping face, faded number and gauge, age in a red pill.
+- Dark ink on the colors (white on green/amber is unreadable). A tap toggles night mode: black background, the zone color moves to the face.
+
+To check a UI change, run `dev/shots.sh` (and `dev/shots.sh es`) and look at `dev/shots/sheet.png`: the SDL display has `headless` and `snapshot.take` built in.
 
 ### Contract between UI and data
 
@@ -123,7 +137,7 @@ Safety net: `safe_mode` + ESP-IDF rollback (on by default). If the new firmware 
 ## Gotchas found
 
 - `id(widget)` in a lambda is not an `lv_obj_t *`: cast it, `(lv_obj_t *) id(lbl_number)`, to use LVGL functions.
-- Don't name a lambda local variable like a widget (a local `fondo` clashed with the widget id). Also avoid ids that clash with C names (`clock`, `time`): hence `sys_time`.
+- Don't name a lambda local variable like a widget: `lv_obj_t *marker = (lv_obj_t *) id(marker);` compiles but segfaults (the local shadows the global). Also avoid ids that clash with C names (`clock`, `time`): hence `sys_time`.
 - With `mipi_spi` and LVGL, rotation goes in `lvgl: rotation:`, not in `display`. The AXS15231 can't rotate in hardware.
 - `mipi_spi` needs a declared `spi` bus of type `quad` (CLK GPIO47, data 21/48/40/39).
 - On the simulator, `http_request` on macOS uses OpenSSL from `/opt/homebrew/opt/openssl` (Apple Silicon); on Linux it needs `ca_certificate_path`.

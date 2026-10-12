@@ -1,0 +1,37 @@
+# Fixed test cases for screenshots: each one fills the globals like a data source would.
+# Used by dev/screenshots.yaml; not part of any firmware.
+
+globals:
+  - id: period
+    type: int
+    initial_value: "300"
+
+script:
+  - id: long_press
+    then: []
+
+  # Sets a scenario: newest value, previous value, trend, age in seconds and status.
+  - id: set_case
+    parameters:
+      value: int
+      previous: int
+      trend_now: int
+      age_s: int
+      status: string
+    then:
+      - lambda: |-
+          auto now = id(sys_time).now().timestamp;
+          std::vector<int> h(8, 0);
+          if (value > 0) {
+            // A smooth made-up history ending in previous -> value
+            int step = value - previous;
+            for (int i = 0; i < 8; i++) h[i] = std::max(40, value - step * (7 - i));
+          }
+          id(history) = h;
+          id(last_ts) = value > 0 ? now - age_s : 0;
+          id(delta) = value - previous;
+          id(delta_ok) = previous > 0;
+          id(trend) = trend_now;
+          id(connected) = status.empty();
+          id(status_text) = status;
+      - script.execute: render

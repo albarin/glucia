@@ -3,6 +3,6 @@ esphome:
 
 packages:
   hardware: !include hardware/simulator.yaml
-  ui: !include common/ui.yaml
+  ui: !include common/ui-kids.yaml   # or ui.yaml (classic)
   lang: !include common/lang/en.yaml   # or es.yaml
   data: !include common/demo.yaml
