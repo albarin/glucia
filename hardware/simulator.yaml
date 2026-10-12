@@ -1,21 +1,21 @@
-# Hardware simulado: una ventana de 480x320 en tu ordenador.
+# Simulated hardware: a 480x320 window on your computer.
 host:
 
 logger:
 
 time:
   - platform: host
-    id: reloj
+    id: sys_time
 
 http_request:
   timeout: 10s
-  # En Mac (Apple Silicon) usa OpenSSL de Homebrew (/opt/homebrew/opt/openssl).
-  # En Linux, descomenta la línea siguiente:
+  # On Mac (Apple Silicon) it uses Homebrew's OpenSSL (/opt/homebrew/opt/openssl).
+  # On Linux, uncomment the following line:
   # ca_certificate_path: /etc/ssl/certs/ca-certificates.crt
 
 display:
   - platform: sdl
-    id: pantalla
+    id: screen
     auto_clear_enabled: false
     update_interval: never
     dimensions:

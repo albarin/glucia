@@ -1,0 +1,18 @@
+# On-screen texts in Spanish. Same keys as en.yaml.
+substitutions:
+  t_starting: "Arrancando..."
+  t_now: "ahora"
+  t_minutes_ago: "hace %d min"
+  t_seconds_ago: "hace %d s"
+  t_no_new_data: "Sin datos nuevos"
+  t_demo: "Modo demo"
+  t_demo_paused: "Demo en pausa"
+  t_connecting: "Conectando..."
+  t_no_wifi: "Sin WiFi: conéctate a la red Glucia"
+  t_dexcom_missing: "Falta Dexcom: entra en glucia.local"
+  t_dexcom_bad_credentials: "Dexcom: revisa usuario y contraseña"
+  t_dexcom_login_error: "Dexcom: error al entrar"
+  t_dexcom_unreachable: "Sin conexión con Dexcom"
+  t_dexcom_error: "Dexcom: error %d"
+  t_dexcom_bad_response: "Dexcom: respuesta rara"
+  t_dexcom_no_readings: "Dexcom no tiene lecturas recientes"

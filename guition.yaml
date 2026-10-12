@@ -1,5 +1,5 @@
 substitutions:
-  # La pone la GitHub Action al publicar (la etiqueta, p. ej. v1.2). En compilaciones locales, "dev".
+  # Set by the GitHub Action when publishing (the tag, e.g. v1.2). Local builds: "dev".
   version: "dev"
 
 esphome:
@@ -10,5 +10,6 @@ esphome:
 
 packages:
   hardware: !include hardware/guition.yaml
-  interfaz: !include comun/interfaz.yaml
-  datos: !include comun/dexcom.yaml
+  ui: !include common/ui.yaml
+  lang: !include common/lang/es.yaml   # or en.yaml
+  data: !include common/dexcom.yaml

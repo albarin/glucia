@@ -1,0 +1,322 @@
+# UI: fonts, screen layout and drawing logic.
+# Same on the simulator and on the board.
+# Needs the data package (demo.yaml or dexcom.yaml) to define:
+#   - the global `period` (seconds between readings)
+#   - the script `long_press`
+# and a language package (lang/en.yaml or lang/es.yaml) for the texts.
+
+substitutions:
+  low_limit: "70"     # mg/dL, below: red
+  high_limit: "180"   # mg/dL, above: amber
+
+globals:
+  # Last 8 readings in mg/dL. [0] is the oldest, [7] the newest. 0 = no data.
+  - id: history
+    type: std::vector<int>
+    initial_value: "std::vector<int>(8, 0)"
+  # Time of the last reading, in Unix seconds (the one Dexcom reports, not when it arrived).
+  - id: last_ts
+    type: int64_t
+    initial_value: "0"
+  - id: delta
+    type: int
+    initial_value: "0"
+  - id: delta_ok
+    type: bool
+    initial_value: "false"
+  # Trend as Dexcom numbers it: 1 rising fast ... 4 steady ... 7 falling fast.
+  - id: trend
+    type: int
+    initial_value: "0"
+  # Error or status message shown at the top left.
+  - id: status_text
+    type: std::string
+    initial_value: '""'
+  # Did the last request to the data source work?
+  - id: connected
+    type: bool
+    initial_value: "false"
+  # Inverted theme: the range color becomes the background.
+  - id: inverted
+    type: bool
+    initial_value: "false"
+
+font:
+  - file: "gfonts://Roboto@700"
+    id: f_number
+    size: 150
+    bpp: 4
+    glyphs: "0123456789-"
+  - file: "gfonts://Roboto@500"
+    id: f_medium
+    size: 44
+    bpp: 4
+    glyphs: "0123456789+-"
+  - file: "gfonts://Roboto@400"
+    id: f_text
+    size: 20
+    bpp: 4
+    glyphsets: [GF_Latin_Kernel]
+    glyphs: "áéíóúüñÁÉÍÓÚÜÑ¿¡·"
+  - file: "https://github.com/Templarian/MaterialDesign-Webfont/raw/v7.4.47/fonts/materialdesignicons-webfont.ttf"
+    id: f_arrow
+    size: 96
+    bpp: 4
+    glyphs: [
+      "\U000F013F",  # chevron-double-up    (rising fast)
+      "\U000F005D",  # arrow-up             (rising)
+      "\U000F005C",  # arrow-top-right      (rising slowly)
+      "\U000F0054",  # arrow-right          (steady)
+      "\U000F0043",  # arrow-bottom-right   (falling slowly)
+      "\U000F0045",  # arrow-down           (falling)
+      "\U000F013C",  # chevron-double-down  (falling fast)
+      "\U000F02D6",  # help                 (not computable)
+      "\U000F0374",  # minus                (no trend)
+    ]
+  - file: "https://github.com/Templarian/MaterialDesign-Webfont/raw/v7.4.47/fonts/materialdesignicons-webfont.ttf"
+    id: f_icons
+    size: 26
+    bpp: 4
+    glyphs: [
+      "\U000F05A9",  # wifi
+      "\U000F05AA",  # wifi-off
+    ]
+
+lvgl:
+  default_font: f_text
+  pages:
+    - id: main_page
+      bg_color: 0x000000
+      widgets:
+        # Full-screen background: receives touches and changes color with the inverted theme.
+        - obj:
+            id: bg
+            x: 0
+            y: 0
+            width: 100%
+            height: 100%
+            radius: 0
+            border_width: 0
+            pad_all: 0
+            bg_color: 0x000000
+            scrollable: false
+            on_short_click:
+              - lambda: id(inverted) = !id(inverted);
+              - script.execute: render
+            on_long_press:
+              - script.execute: long_press
+            widgets:
+              - label:
+                  id: lbl_status
+                  x: 16
+                  y: 10
+                  text_color: 0x9CA3AF
+                  text: "${t_starting}"
+              - label:
+                  id: lbl_wifi
+                  align: TOP_RIGHT
+                  x: -14
+                  y: 8
+                  text_font: f_icons
+                  text_color: 0x9CA3AF
+                  text: "\U000F05AA"
+              - label:
+                  id: lbl_number
+                  x: 10
+                  y: 30
+                  width: 310
+                  text_align: CENTER
+                  text_font: f_number
+                  text_color: 0x6B7280
+                  text: "--"
+              - label:
+                  id: lbl_arrow
+                  x: 330
+                  y: 36
+                  text_font: f_arrow
+                  text_color: 0xFFFFFF
+                  text: ""
+              - label:
+                  id: lbl_delta
+                  x: 336
+                  y: 136
+                  text_font: f_medium
+                  text_color: 0xFFFFFF
+                  text: ""
+              - label:
+                  id: lbl_unit
+                  x: 338
+                  y: 186
+                  text_color: 0xFFFFFF
+                  text: "mg/dL"
+              - bar:
+                  id: countdown_bar
+                  x: 30
+                  y: 208
+                  width: 270
+                  height: 8
+                  min_value: 0
+                  max_value: 100
+                  value: 0
+                  bg_color: 0x333333
+                  indicator:
+                    bg_color: 0xE5E7EB
+              - label:
+                  id: lbl_age
+                  x: 338
+                  y: 214
+                  text_color: 0x9CA3AF
+                  text: ""
+              # Last 8 readings. Height and color are set in `render`.
+              - obj: {id: bar_0, x: 24,  y: 300, width: 50, height: 4, radius: 3, border_width: 0, bg_color: 0x333333, clickable: false, scrollable: false}
+              - obj: {id: bar_1, x: 80,  y: 300, width: 50, height: 4, radius: 3, border_width: 0, bg_color: 0x333333, clickable: false, scrollable: false}
+              - obj: {id: bar_2, x: 136, y: 300, width: 50, height: 4, radius: 3, border_width: 0, bg_color: 0x333333, clickable: false, scrollable: false}
+              - obj: {id: bar_3, x: 192, y: 300, width: 50, height: 4, radius: 3, border_width: 0, bg_color: 0x333333, clickable: false, scrollable: false}
+              - obj: {id: bar_4, x: 248, y: 300, width: 50, height: 4, radius: 3, border_width: 0, bg_color: 0x333333, clickable: false, scrollable: false}
+              - obj: {id: bar_5, x: 304, y: 300, width: 50, height: 4, radius: 3, border_width: 0, bg_color: 0x333333, clickable: false, scrollable: false}
+              - obj: {id: bar_6, x: 360, y: 300, width: 50, height: 4, radius: 3, border_width: 0, bg_color: 0x333333, clickable: false, scrollable: false}
+              - obj: {id: bar_7, x: 416, y: 300, width: 50, height: 4, radius: 3, border_width: 0, bg_color: 0x333333, clickable: false, scrollable: false}
+
+script:
+  # Draws the globals on screen. Called when a reading arrives and once per second.
+  - id: render
+    then:
+      - lambda: |-
+          const int low = ${low_limit};
+          const int high = ${high_limit};
+
+          // What time is it and how old is the reading?
+          auto t = id(sys_time).now();
+          int64_t now = t.is_valid() ? (int64_t) t.timestamp : 0;
+          int value = id(history)[7];
+          bool has_data = value > 0 && id(last_ts) > 0;
+          int64_t age = (has_data && now > 0) ? now - id(last_ts) : -1;
+          bool stale = has_data && age > 3 * id(period);   // 3 missed readings
+
+          // Colors
+          auto color_of = [&](int v) -> uint32_t {
+            if (v <= 0) return 0x333333;    // no data
+            if (v < low) return 0xF2545B;   // red
+            if (v > high) return 0xF5B83D;  // amber
+            return 0x4ADE80;                // green
+          };
+          const uint32_t GREY = 0x6B7280;
+          uint32_t color = (has_data && !stale) ? color_of(value) : GREY;
+          bool inv = id(inverted) && has_data && !stale;
+          uint32_t bg_color = inv ? color : 0x000000;
+          uint32_t ink = inv ? 0x000000 : 0xFFFFFF;
+          uint32_t soft_ink = inv ? 0x000000 : 0x9CA3AF;
+
+          // Only change text, colors and sizes when they differ: LVGL redraws
+          // on every change even if the value is the same.
+          auto set_text = [](lv_obj_t *obj, const std::string &txt) {
+            if (txt != lv_label_get_text(obj)) lv_label_set_text(obj, txt.c_str());
+          };
+          auto set_ink = [](lv_obj_t *obj, uint32_t c) {
+            lv_color_t next = lv_color_hex(c);
+            if (!lv_color_eq(lv_obj_get_style_text_color(obj, LV_PART_MAIN), next)) lv_obj_set_style_text_color(obj, next, 0);
+          };
+          auto set_fill = [](lv_obj_t *obj, uint32_t c, lv_part_t part) {
+            lv_color_t next = lv_color_hex(c);
+            if (!lv_color_eq(lv_obj_get_style_bg_color(obj, part), next)) lv_obj_set_style_bg_color(obj, next, part);
+          };
+          auto set_hidden = [](lv_obj_t *obj, bool hide) {
+            if (hide == lv_obj_has_flag(obj, LV_OBJ_FLAG_HIDDEN)) return;
+            if (hide) lv_obj_add_flag(obj, LV_OBJ_FLAG_HIDDEN);
+            else lv_obj_remove_flag(obj, LV_OBJ_FLAG_HIDDEN);
+          };
+          auto format = [](const char *fmt, int n) {
+            char buf[64];
+            snprintf(buf, sizeof(buf), fmt, n);
+            return std::string(buf);
+          };
+
+          set_fill(id(bg), bg_color, LV_PART_MAIN);
+
+          // Big number
+          lv_obj_t *number = (lv_obj_t *) id(lbl_number);
+          set_text(number, has_data ? std::to_string(value) : "--");
+          set_ink(number, inv ? 0x000000 : color);
+
+          // Trend arrow
+          static const char *ARROWS[] = {
+            "\U000F0374", "\U000F013F", "\U000F005D", "\U000F005C", "\U000F0054",
+            "\U000F0043", "\U000F0045", "\U000F013C", "\U000F02D6", "\U000F0374",
+          };
+          int tr = id(trend);
+          if (tr < 0 || tr > 9) tr = 0;
+          lv_obj_t *arrow = (lv_obj_t *) id(lbl_arrow);
+          set_text(arrow, (has_data && !stale) ? ARROWS[tr] : "");
+          set_ink(arrow, ink);
+
+          // Change since the previous reading
+          lv_obj_t *dlt = (lv_obj_t *) id(lbl_delta);
+          std::string delta_text = "";
+          if (has_data && !stale && id(delta_ok))
+            delta_text = (id(delta) > 0 ? "+" : "") + std::to_string(id(delta));
+          set_text(dlt, delta_text);
+          set_ink(dlt, ink);
+          set_ink((lv_obj_t *) id(lbl_unit), ink);
+
+          // Age of the reading
+          lv_obj_t *age_lbl = (lv_obj_t *) id(lbl_age);
+          std::string age_text = "";
+          if (age >= 0) {
+            int min = age / 60;
+            if (min >= 1) age_text = format("${t_minutes_ago}", min);
+            else age_text = stale ? format("${t_seconds_ago}", (int) age) : "${t_now}";
+          }
+          set_text(age_lbl, age_text);
+          set_ink(age_lbl, stale ? 0xF2545B : soft_ink);
+
+          // Status at the top left: data source error or stale data warning
+          lv_obj_t *status_lbl = (lv_obj_t *) id(lbl_status);
+          std::string status = id(status_text);
+          if (status.empty() && stale) status = "${t_no_new_data}";
+          set_text(status_lbl, status);
+          set_ink(status_lbl, soft_ink);
+
+          // Connection icon
+          lv_obj_t *wifi = (lv_obj_t *) id(lbl_wifi);
+          set_text(wifi, id(connected) ? "\U000F05A9" : "\U000F05AA");
+          set_ink(wifi, id(connected) ? soft_ink : 0xF2545B);
+
+          // Countdown bar until the next reading
+          lv_obj_t *countdown = (lv_obj_t *) id(countdown_bar);
+          int pct = 0;
+          if (has_data && !stale && now > 0) {
+            int64_t remaining = id(last_ts) + id(period) - now;
+            pct = (int) (remaining * 100 / id(period));
+            pct = std::max(0, std::min(100, pct));
+          }
+          lv_bar_set_value(countdown, pct, LV_ANIM_OFF);
+          set_fill(countdown, inv ? 0x000000 : 0xE5E7EB, LV_PART_INDICATOR);
+          set_hidden(countdown, stale || !has_data);
+
+          // The 8 bars: height proportional to the value between 40 and 300 mg/dL
+          lv_obj_t *bars[8] = {
+            (lv_obj_t *) id(bar_0), (lv_obj_t *) id(bar_1), (lv_obj_t *) id(bar_2), (lv_obj_t *) id(bar_3),
+            (lv_obj_t *) id(bar_4), (lv_obj_t *) id(bar_5), (lv_obj_t *) id(bar_6), (lv_obj_t *) id(bar_7),
+          };
+          const int BASE = 304, MIN_H = 4, MAX_H = 64;
+          for (int i = 0; i < 8; i++) {
+            int v = id(history)[i];
+            int h = MIN_H;
+            if (v > 0) {
+              int c = std::max(40, std::min(300, v));
+              h = MIN_H + (c - 40) * (MAX_H - MIN_H) / (300 - 40);
+            }
+            if (lv_obj_get_style_height(bars[i], LV_PART_MAIN) != h) {
+              lv_obj_set_height(bars[i], h);
+              lv_obj_set_y(bars[i], BASE - h);
+            }
+            set_fill(bars[i], inv ? 0x000000 : (stale ? GREY : color_of(v)), LV_PART_MAIN);
+            lv_opa_t opa = (inv && v <= 0) ? LV_OPA_20 : LV_OPA_COVER;
+            if (lv_obj_get_style_bg_opa(bars[i], LV_PART_MAIN) != opa) lv_obj_set_style_bg_opa(bars[i], opa, 0);
+          }
+
+interval:
+  # The countdown and the age of the reading change on their own over time.
+  - interval: 1s
+    then:
+      - script.execute: render

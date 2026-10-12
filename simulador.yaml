@@ -1,7 +1,0 @@
-esphome:
-  name: glucia-sim
-
-packages:
-  hardware: !include hardware/simulador.yaml
-  interfaz: !include comun/interfaz.yaml
-  datos: !include comun/demo.yaml

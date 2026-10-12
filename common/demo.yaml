@@ -1,0 +1,47 @@
+# Test data: a made-up reading every 15 seconds.
+# Long press on the screen: pauses the demo (useful to see stale data).
+
+globals:
+  - id: period
+    type: int
+    initial_value: "15"   # seconds between readings (real Dexcom: 300)
+  - id: demo_paused
+    type: bool
+    initial_value: "false"
+
+script:
+  - id: long_press
+    then:
+      - lambda: |-
+          id(demo_paused) = !id(demo_paused);
+          id(status_text) = id(demo_paused) ? "${t_demo_paused}" : "${t_demo}";
+      - script.execute: render
+
+interval:
+  - interval: 15s
+    then:
+      - lambda: |-
+          if (id(demo_paused)) return;
+          auto t = id(sys_time).now();
+          if (!t.is_valid()) return;
+
+          // Random walk between 45 and 320 mg/dL
+          int previous = id(history)[7];
+          int v = previous > 0 ? previous : 120;
+          v += (int) (random_uint32() % 41) - 20;   // -20 to +20
+          v = std::max(45, std::min(320, v));
+
+          // Shift the history and append the new reading
+          for (int i = 0; i < 7; i++) id(history)[i] = id(history)[i + 1];
+          id(history)[7] = v;
+
+          id(delta_ok) = previous > 0;
+          id(delta) = v - previous;
+          int d = id(delta);
+          // Rough trend, using the same numbers as Dexcom (1 to 7)
+          id(trend) = d >= 15 ? 1 : d >= 10 ? 2 : d >= 5 ? 3 : d > -5 ? 4 : d > -10 ? 5 : d > -15 ? 6 : 7;
+
+          id(last_ts) = t.timestamp;
+          id(connected) = true;
+          id(status_text) = "${t_demo}";
+      - script.execute: render

@@ -1,136 +1,140 @@
-# Glucía: pantalla de glucosa (réplica DIY de Gluvi)
+# Glucía: glucose display (DIY Gluvi replica)
 
-El aparato se llama `glucia` (hostname `glucia.local`) y su WiFi de rescate, `Glucia`. Repo **público** en GitHub: `albarin/glucia`. No poner datos personales en el repo (ni en commits, releases o issues): el contexto privado está en `CLAUDE.local.md`, que no se sube.
+The device is called `glucia` (hostname `glucia.local`) and its rescue WiFi, `Glucia`. **Public** GitHub repo: `albarin/glucia`. Never put personal data in the repo (nor in commits, releases or issues): private context lives in `CLAUDE.local.md`, which is not committed.
 
-Pantalla de sobremesa que muestra en grande la glucosa de un sensor Dexcom: número, flecha de tendencia, cambio respecto a la lectura anterior, cuenta atrás hasta la próxima lectura y las 8 últimas lecturas en barras. Inspirada en https://migluvi.com.
+Desktop display that shows the glucose from a Dexcom sensor in large type: number, trend arrow, change since the previous reading, countdown to the next reading and the last 8 readings as bars. Inspired by https://migluvi.com.
 
-## Para quién y restricciones
+## Who it's for and constraints
 
-- Es para una persona que vive lejos y **no tiene Home Assistant** ni ningún servidor. El aparato tiene que funcionar solo, con su WiFi, sin depender de nada más.
-- No se puede ir a arreglarlo en persona: todo el mantenimiento tiene que poder hacerse a distancia.
-- Es una pantalla **informativa**: no avisa ni suena. Las alarmas de Dexcom en el móvil de esa persona tienen que seguir activas. No añadir alarmas.
+- It's for someone who lives far away and **has no Home Assistant** or any server. The device must work on its own, with its WiFi, without depending on anything else.
+- Nobody can go fix it in person: all maintenance must be doable remotely.
+- It's an **informational** display: it doesn't alert or beep. The Dexcom alarms on that person's phone must stay on. Don't add alarms.
 
-## Decisiones tomadas
+## Decisions made
 
-- **Firmware:** ESPHome (probado con 2026.9.1) con LVGL 9. Sin Home Assistant: no se usa la `api:` de HA.
-- **Datos:** Dexcom Share directamente desde la placa (API no oficial, la misma que usa `pydexcom`). Servidor de fuera de EE. UU.: `shareous1.dexcom.com`.
-- **Hardware:** Guition **JC3248W535C** (ESP32-S3 N16R8, 3,5", 480x320, táctil capacitivo AXS15231). Compradas 2 (una para pruebas, otra para enviar); llegada prevista 17 a 22 de octubre de 2026.
-- **Desarrollo:** primero en el simulador (`host` + SDL2) en el Mac; luego en la placa.
-- **Python:** 3.13 de Homebrew, en un entorno virtual `.venv` dentro del proyecto (`.venv/bin/esphome`). El de macOS (3.9) instala un ESPHome demasiado viejo, y 3.15 falla al compilar `ruamel.yaml.clib`.
+- **Firmware:** ESPHome (tested with 2026.9.1) with LVGL 9. No Home Assistant: the HA `api:` is not used.
+- **Data:** Dexcom Share directly from the board (unofficial API, the same one `pydexcom` uses). Non-US server: `shareous1.dexcom.com`.
+- **Hardware:** Guition **JC3248W535C** (ESP32-S3 N16R8, 3.5", 480x320, AXS15231 capacitive touch). 2 bought (one for testing, one to ship); expected arrival October 17–22, 2026.
+- **Development:** first on the simulator (`host` + SDL2) on the Mac; then on the board.
+- **Python:** Homebrew 3.13, in a `.venv` virtual environment inside the project (`.venv/bin/esphome`). The macOS one (3.9) installs an ESPHome that is too old, and 3.15 fails to build `ruamel.yaml.clib`.
+- **Language:** code, comments, docs and commits in English. On-screen texts come from `common/lang/en.yaml` or `es.yaml` (one `lang` package per main file); the board ships in Spanish.
 
-## Puesta en marcha
+## Getting started
 
-`.venv` y `.esphome/` no están en git y guardan rutas absolutas: si se mueve o renombra la carpeta (o en otro ordenador), hay que rehacerlos.
+`.venv` and `.esphome/` are not in git and store absolute paths: if the folder is moved or renamed (or on another computer), rebuild them.
 
 ```sh
 rm -rf .venv .esphome
 /opt/homebrew/bin/python3.13 -m venv .venv
 .venv/bin/pip install esphome==2026.9.1
-cp secrets.example.yaml secrets.yaml      # solo si no existe; rellenar los valores
+cp secrets.example.yaml secrets.yaml      # only if it doesn't exist; fill in the values
 
-.venv/bin/esphome run simulador.yaml      # simulador con demo (necesita SDL2: brew install sdl2)
-.venv/bin/esphome compile guition.yaml    # firmware de la placa (la primera vez tarda: descarga ESP-IDF)
+.venv/bin/esphome run simulator.yaml      # simulator with demo data (needs SDL2: brew install sdl2)
+.venv/bin/esphome compile guition.yaml    # board firmware (slow the first time: downloads ESP-IDF)
 ```
 
-## Estructura
+## Layout
 
 ```
-secrets.yaml             # contraseñas (no subir a git)
-secrets.example.yaml     # plantilla de secrets.yaml, sin datos reales
-simulador.yaml           # simulador + datos de demo
-simulador-dexcom.yaml    # simulador + Dexcom real (nombre distinto: no comparte compilación con el otro)
-guition.yaml             # placa real + Dexcom real
+README.md                # short public intro: what it is and how to run it
+secrets.yaml             # passwords (never commit)
+secrets.example.yaml     # secrets.yaml template, no real data
+simulator.yaml           # simulator + demo data
+simulator-dexcom.yaml    # simulator + real Dexcom (different name: doesn't share the build with the other)
+guition.yaml             # real board + real Dexcom
 hardware/
-  simulador.yaml         # ventana SDL 480x320, reloj del sistema, http_request
-  guition.yaml           # ESP32-S3, PSRAM, QSPI, mipi_spi, táctil, brillo, WiFi + AP de rescate,
-                         # web local, OTA, actualización automática
+  simulator.yaml         # 480x320 SDL window, system clock, http_request
+  guition.yaml           # ESP32-S3, PSRAM, QSPI, mipi_spi, touch, brightness, WiFi + rescue AP,
+                         # local web page, OTA, automatic updates
+common/
+  ui.yaml                # globals, fonts, LVGL screen and the `render` script
+  demo.yaml              # made-up readings every 15 s
+  dexcom.yaml            # Dexcom Share login + read every 60 s
+  lang/en.yaml, es.yaml  # on-screen texts (substitutions t_*)
 .github/workflows/
-  firmware.yml           # al subir una etiqueta v*: compila guition.yaml y lo publica
-comun/
-  interfaz.yaml          # globales, fuentes, pantalla LVGL y script `pintar`
-  demo.yaml              # lecturas inventadas cada 15 s
-  dexcom.yaml            # login + lectura de Dexcom Share cada 60 s
+  firmware.yml           # on a v* tag: builds guition.yaml and publishes it
 ```
 
-Los ficheros principales solo combinan `packages`: hardware + interfaz + datos.
+The main files only combine `packages`: hardware + ui + lang + data.
 
-### Contrato entre interfaz y datos
+### Contract between UI and data
 
-`interfaz.yaml` no sabe de dónde vienen los datos. Una fuente de datos rellena estas globales y llama a `script.execute: pintar`:
+`ui.yaml` doesn't know where the data comes from. A data source fills these globals and calls `script.execute: render`:
 
-- `historial` (`std::vector<int>`, 8 elementos, el más reciente en `[7]`, 0 = sin dato)
-- `ultima_ts` (hora de la lectura en segundos Unix, la que da Dexcom, no la de recepción)
-- `delta`, `delta_ok`, `tendencia` (numeración de Dexcom: 1 sube rápido, 4 estable, 7 baja rápido, 8 no calculable, 9 sin tendencia)
-- `estado` (texto arriba a la izquierda), `conectado` (icono WiFi)
+- `history` (`std::vector<int>`, 8 items, newest at `[7]`, 0 = no data)
+- `last_ts` (time of the reading in Unix seconds, the one Dexcom reports, not when it arrived)
+- `delta`, `delta_ok`, `trend` (Dexcom numbering: 1 rising fast, 4 steady, 7 falling fast, 8 not computable, 9 no trend)
+- `status_text` (text at the top left), `connected` (WiFi icon)
 
-Además cada fuente debe definir el global `periodo` (segundos entre lecturas: 300 en Dexcom, 15 en la demo) y el script `pulsacion_larga`.
+Each source must also define the global `period` (seconds between readings: 300 for Dexcom, 15 for the demo) and the script `long_press`.
 
-Regla de dato caducado (en `pintar`): si la última lectura tiene más de `3 * periodo` segundos, número en gris, sin flecha, sin cambio, sin cuenta atrás y edad en rojo. Nunca mostrar una cifra vieja con aspecto de actual.
+Stale data rule (in `render`): if the last reading is older than `3 * period` seconds, grey number, no arrow, no change, no countdown and age in red. Never show an old number looking current.
 
-## Credenciales y actualizaciones
+## Credentials and updates
 
-El firmware de la placa se publica en los Releases públicos de este repo, así que no lleva nada privado:
+The board firmware is published in this repo's public Releases, so it carries nothing private:
 
-- **WiFi:** se elige desde la red de rescate `Glucia` (portal cautivo) o por USB (`improv_serial`, desde web.esphome.io). Se guarda en el aparato.
-- **Dexcom:** se pone en la web local (`http://glucia.local`, `web_server` sin contraseña, solo accesible desde la red de casa). Entidades `text` con `restore_value`. Al cambiarlas se borra la sesión y la espera (`dexcom_olvidar`). Sin credenciales, la pantalla dice «Falta Dexcom: entra en glucia.local».
-- En el binario solo van `ap_password` y `ota_password`: se pueden sacar del binario público, así que no reutilizar contraseñas importantes.
-- `simulador-dexcom.yaml` sí toma las credenciales de Dexcom de `secrets.yaml` (por `substitutions`).
+- **WiFi:** chosen from the `Glucia` rescue network (captive portal) or over USB (`improv_serial`, from web.esphome.io). Stored on the device.
+- **Dexcom:** set on the local web page (`http://glucia.local`, `web_server` without a password, only reachable from the home network). `text` entities with `restore_value`. Changing them clears the session and the wait (`dexcom_reset`). Without credentials, the screen says "Set up Dexcom at glucia.local".
+- Entity names ("Dexcom username", "Brightness"…) are fixed in English and must not change: the stored value is keyed by the name, so renaming one loses what the device had saved.
+- Only `ap_password` and `ota_password` go in the binary: they can be extracted from the public binary, so don't reuse important passwords.
+- `simulator-dexcom.yaml` does take the Dexcom credentials from `secrets.yaml` (via `substitutions`).
 
-Actualizaciones: `git tag v1.2 && git push origin v1.2` lanza la Action, que compila con `-s version v1.2` y crea el Release `v1.2` con `manifest.json`, `glucia.ota.bin` y `glucia.factory.bin`. La placa mira `releases/latest/download/manifest.json` cada 6 h (`update: platform: http_request`) y si la versión es distinta la instala. Las compilaciones locales llevan versión `dev` y no se actualizan solas.
+Updates: `git tag v1.2 && git push origin v1.2` triggers the Action, which builds with `-s version v1.2` and creates the `v1.2` Release with `manifest.json`, `glucia.ota.bin` and `glucia.factory.bin`. The board checks `releases/latest/download/manifest.json` every 6 h (`update: platform: http_request`) and installs it if the version differs. Local builds have version `dev` and don't update themselves.
 
-Red de seguridad: `safe_mode` + rollback del ESP-IDF (activo por defecto). Si el firmware nuevo se reinicia antes de 1 minuto funcionando, el arranque vuelve al anterior. No protege de un firmware que arranca pero funciona mal (p. ej. sin WiFi): probar siempre en la placa de casa antes de etiquetar. El rollback necesita que el gestor de arranque se haya grabado por USB con esta configuración (la primera instalación).
+Safety net: `safe_mode` + ESP-IDF rollback (on by default). If the new firmware reboots before running for 1 minute, the bootloader goes back to the previous one. It doesn't protect against firmware that boots but misbehaves (e.g. no WiFi): always test on the home board before tagging. Rollback needs the bootloader to have been flashed over USB with this configuration (the first install).
 
-## API de Dexcom Share
+## Dexcom Share API
 
-1. `POST General/AuthenticatePublisherAccount` con `accountName`, `password`, `applicationId` → account ID (UUID entre comillas).
-2. `POST General/LoginPublisherAccountById` con `accountId`, `password`, `applicationId` → session ID. Un UUID de ceros es un fallo.
-3. `POST Publisher/ReadPublisherLatestGlucoseValues?sessionId=…&minutes=60&maxCount=8` con cuerpo `{}` → lista, la más reciente primero. Cada lectura: `{"WT": "Date(ms)", "Value": 142, "Trend": "FortyFiveUp"}` (`Trend` puede venir como texto o número).
+1. `POST General/AuthenticatePublisherAccount` with `accountName`, `password`, `applicationId` → account ID (UUID in quotes).
+2. `POST General/LoginPublisherAccountById` with `accountId`, `password`, `applicationId` → session ID. An all-zeros UUID is a failure.
+3. `POST Publisher/ReadPublisherLatestGlucoseValues?sessionId=…&minutes=60&maxCount=8` with body `{}` → list, newest first. Each reading: `{"WT": "Date(ms)", "Value": 142, "Trend": "FortyFiveUp"}` (`Trend` can be text or a number).
 
 - `applicationId`: `d89443d2-327c-4a6f-89e5-496bbb0317db`.
-- Errores `SessionIdNotFound` o `SessionNotValid` → se borra la sesión y se repite el login.
-- Credenciales incorrectas → no reintentar en 30 min (`dx_esperar_hasta`), para no bloquear la cuenta (`SSO_AuthenticateMaxAttemptsExceeded`). Otros fallos de login → 2 min.
-- No se intenta el login sin hora válida (en la placa la hora llega por SNTP después del WiFi): sin hora no se puede respetar la espera.
-- Credenciales: las de la **cuenta principal** (quien lleva el sensor), con Share activado y al menos un seguidor aceptado.
+- `SessionIdNotFound` or `SessionNotValid` errors → clear the session and sign in again.
+- Wrong credentials → don't retry for 30 min (`dx_wait_until`), so the account doesn't get locked (`SSO_AuthenticateMaxAttemptsExceeded`). Other login failures → 2 min.
+- No login attempt without a valid time (on the board the time arrives via SNTP after WiFi): without the time the wait can't be honored.
+- Credentials: those of the **main account** (the person wearing the sensor), with Share enabled and at least one accepted follower.
 
-## Estado
+## Status
 
-**Probado (en Linux, en la nube):**
-- `simulador.yaml` compila y funciona: demo, tema invertido con un toque, pausa y dato caducado con pulsación larga.
-- `dexcom.yaml` contra un servidor de prueba que imita a Dexcom: login, lectura, sesión caducada y re-login, contraseña incorrecta con un solo intento, servidor caído.
+**Tested (on Linux, in the cloud):**
+- `simulator.yaml` builds and works: demo, inverted theme with a tap, pause and stale data with a long press.
+- `dexcom.yaml` against a test server that mimics Dexcom: login, read, expired session and re-login, wrong password with a single attempt, server down.
 
-**Probado en el Mac de Alba:**
-- ESPHome 2026.9.1 en `.venv` (Python 3.13). Usar `.venv/bin/esphome`.
-- `simulador.yaml` se ve bien: demo, cuenta atrás, tema invertido.
-- `simulador.yaml`, `simulador-dexcom.yaml` y `guition.yaml` compilan; `guition.yaml` ocupa 1,2 MB (15 % de flash, 33 % de RAM).
+**Tested on Alba's Mac:**
+- ESPHome 2026.9.1 in `.venv` (Python 3.13). Use `.venv/bin/esphome`.
+- `simulator.yaml` looks right: demo, countdown, inverted theme.
+- `simulator.yaml`, `simulator-dexcom.yaml` and `guition.yaml` build; `guition.yaml` is 1.3 MB (16% of flash, 34% of RAM).
+- The `firmware.yml` Action: `v0.1` built and published the Release with the manifest and both binaries.
 
-**Compila pero no está probado:**
-- Credenciales fuera del firmware (portal cautivo, `improv_serial`, web local) y actualización automática con rollback.
-- La Action `firmware.yml` (falta crear los secretos `AP_PASSWORD` y `OTA_PASSWORD` y lanzar la primera etiqueta).
+**Builds but untested:**
+- Credentials outside the firmware (captive portal, `improv_serial`, local web page) and automatic update with rollback.
 
-**No probado:**
-- Contra el Dexcom real (aún no hay credenciales).
-- `guition.yaml` en la placa real. Puntos a vigilar: orientación (`lvgl: rotation: 90`, quizá 270), orientación del táctil, pin de brillo (GPIO1).
+**Untested:**
+- Against the real Dexcom (no credentials yet).
+- `guition.yaml` on the real board. Watch out for: orientation (`lvgl: rotation: 90`, maybe 270), touch orientation, brightness pin (GPIO1).
 
-## Próximos pasos
+## Next steps
 
-1. Poner en marcha la publicación: secretos `AP_PASSWORD` y `OTA_PASSWORD` en el repo, primera etiqueta y comprobar que el Release lleva el manifiesto y los binarios.
-2. Aviso de que sigue vivo: `http_request.get` periódico a healthchecks.io.
-3. Control de brillo desde la pantalla (la `light` `brillo` ya existe en `hardware/guition.yaml`), opción de mmol/L.
-4. Probar con las credenciales reales de Dexcom cuando las haya.
-5. Unas semanas funcionando en casa, provocando fallos, antes de enviarla.
+1. Liveness ping: periodic `http_request.get` to healthchecks.io.
+2. Brightness control from the screen (the `backlight` `light` already exists in `hardware/guition.yaml`), mmol/L option.
+3. Test with the real Dexcom credentials once available.
+4. A few weeks running at home, provoking failures, before shipping it.
 
-## Trampas encontradas
+## Gotchas found
 
-- `id(widget)` en una lambda no es `lv_obj_t *`: hay que hacer `(lv_obj_t *) id(lbl_numero)` para usar funciones de LVGL.
-- No llamar a una variable local de la lambda igual que un widget (`fondo` chocaba con el id del widget).
-- En `mipi_spi` con LVGL, la rotación va en `lvgl: rotation:`, no en `display`. El AXS15231 no rota por hardware.
-- `mipi_spi` necesita un bus `spi` de tipo `quad` declarado (CLK GPIO47, datos 21/48/40/39).
-- En el simulador, `http_request` en macOS usa OpenSSL de `/opt/homebrew/opt/openssl` (Apple Silicon); en Linux hace falta `ca_certificate_path`.
-- `pintar` se ejecuta cada segundo: solo cambiar texto, colores, tamaños y visibilidad si son distintos (`poner`, `tinta_de`, `relleno_de`, `ocultar`). LVGL redibuja con cada `set_style` aunque el valor sea el mismo, y en la placa la rotación es por software.
-- Las funciones `lv_obj_get_style_*` piden `lv_part_t`: pasar `LV_PART_MAIN`, no `0` (con `0` no compila en C++).
-- Las fuentes descargadas de GitHub, con versión fija (`raw/v7.4.47/`, no `raw/master/`), para que la compilación automática no cambie sola.
+- `id(widget)` in a lambda is not an `lv_obj_t *`: cast it, `(lv_obj_t *) id(lbl_number)`, to use LVGL functions.
+- Don't name a lambda local variable like a widget (a local `fondo` clashed with the widget id). Also avoid ids that clash with C names (`clock`, `time`): hence `sys_time`.
+- With `mipi_spi` and LVGL, rotation goes in `lvgl: rotation:`, not in `display`. The AXS15231 can't rotate in hardware.
+- `mipi_spi` needs a declared `spi` bus of type `quad` (CLK GPIO47, data 21/48/40/39).
+- On the simulator, `http_request` on macOS uses OpenSSL from `/opt/homebrew/opt/openssl` (Apple Silicon); on Linux it needs `ca_certificate_path`.
+- `render` runs every second: only change text, colors, sizes and visibility when they differ (`set_text`, `set_ink`, `set_fill`, `set_hidden`). LVGL redraws on every `set_style` even if the value is the same, and on the board rotation is done in software.
+- `lv_obj_get_style_*` functions take an `lv_part_t`: pass `LV_PART_MAIN`, not `0` (with `0` it doesn't compile in C++).
+- Fonts downloaded from GitHub use a pinned version (`raw/v7.4.47/`, not `raw/master/`), so the automated build doesn't change on its own.
+- On-screen texts with a number (`t_minutes_ago`, `t_dexcom_error`) are `printf` formats with a single `%d`.
 
-## Convenciones
+## Conventions
 
-- Código, comentarios y textos de pantalla en español.
-- Textos de pantalla cortos y comprensibles para alguien no técnico.
+- Code, comments, docs and commits in English. On-screen texts only in `common/lang/*.yaml`, in every language.
+- On-screen texts short and understandable for a non-technical person (the status line fits about 40 characters).

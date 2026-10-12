@@ -1,8 +1,8 @@
-# Compilaciones de ESPHome
+# ESPHome builds
 /.esphome/
-# Credenciales: nunca a git
+# Credentials: never in git
 /secrets.yaml
-# Entorno de Python con ESPHome
+# Python environment with ESPHome
 /.venv/
-# Contexto privado para Claude Code (datos personales)
+# Private context for Claude Code (personal data)
 /CLAUDE.local.md

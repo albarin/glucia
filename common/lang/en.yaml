@@ -1,0 +1,19 @@
+# On-screen texts in English. Keep them short: the status line fits about 40 characters.
+# Entity names (web page) are not translated: their stored values are keyed by name.
+substitutions:
+  t_starting: "Starting..."
+  t_now: "now"
+  t_minutes_ago: "%d min ago"
+  t_seconds_ago: "%d s ago"
+  t_no_new_data: "No new data"
+  t_demo: "Demo mode"
+  t_demo_paused: "Demo paused"
+  t_connecting: "Connecting..."
+  t_no_wifi: "No WiFi: join the Glucia network"
+  t_dexcom_missing: "Set up Dexcom at glucia.local"
+  t_dexcom_bad_credentials: "Dexcom: check username and password"
+  t_dexcom_login_error: "Dexcom: sign-in error"
+  t_dexcom_unreachable: "Can't reach Dexcom"
+  t_dexcom_error: "Dexcom: error %d"
+  t_dexcom_bad_response: "Dexcom: unexpected response"
+  t_dexcom_no_readings: "No recent Dexcom readings"

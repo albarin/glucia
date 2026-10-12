@@ -1,4 +1,4 @@
-# Hardware real: Guition JC3248W535 (ESP32-S3, pantalla 3,5" 480x320, táctil capacitivo).
+# Real hardware: Guition JC3248W535 (ESP32-S3, 3.5" 480x320 display, capacitive touch).
 esp32:
   variant: esp32s3
   flash_size: 16MB
@@ -11,11 +11,11 @@ psram:
 
 logger:
 
-# La WiFi no va dentro del firmware: se elige desde la red de rescate "Glucia"
-# (portal cautivo) o por USB (improv_serial, desde web.esphome.io).
-# Se guarda en el aparato y sobrevive a las actualizaciones.
+# WiFi is not part of the firmware: it is chosen from the "Glucia" rescue network
+# (captive portal) or over USB (improv_serial, from web.esphome.io).
+# It is stored on the device and survives updates.
 wifi:
-  # Si no hay WiFi guardada o no la encuentra en 1 minuto, crea su propia red
+  # If no WiFi is stored or it can't be found within 1 minute, it creates its own network
   ap:
     ssid: "Glucia"
     password: !secret ap_password
@@ -24,51 +24,51 @@ captive_portal:
 
 improv_serial:
 
-# Web local (http://glucia.local) para cambiar las credenciales de Dexcom y el brillo.
+# Local web page (http://glucia.local) to change the Dexcom credentials and the brightness.
 web_server:
   port: 80
   version: 3
   local: true
 
 ota:
-  # Desde el ordenador, en la misma red: esphome run guition.yaml
+  # From the computer, on the same network: esphome run guition.yaml
   - platform: esphome
     password: !secret ota_password
-  # Desde internet: lo usa la actualización automática (update: más abajo)
+  # From the internet: used by the automatic update (update: below)
   - platform: http_request
 
-# Si el firmware nuevo se cuelga o se reinicia antes de llevar 1 minuto
-# funcionando, el arranque vuelve al anterior (rollback del ESP-IDF, activo por defecto
-# con safe_mode). Solo funciona si el gestor de arranque se grabó por USB con esta configuración.
+# If the new firmware hangs or reboots before running for 1 minute, the bootloader
+# goes back to the previous one (ESP-IDF rollback, on by default with safe_mode).
+# Only works if the bootloader was flashed over USB with this configuration.
 safe_mode:
 
-# Actualizaciones automáticas: cada 6 h mira el manifiesto que publica la GitHub Action
-# y, si la versión es distinta de la instalada, la descarga, comprueba el MD5 y la instala.
+# Automatic updates: every 6 h it checks the manifest published by the GitHub Action
+# and, if the version differs from the installed one, downloads it, checks the MD5 and installs it.
 update:
   - platform: http_request
-    id: actualizacion
+    id: firmware_update
     name: "Firmware"
     source: https://github.com/albarin/glucia/releases/latest/download/manifest.json
     update_interval: 6h
     on_update_available:
-      # Las compilaciones locales ("dev") no se actualizan solas: si no, pisaría las pruebas.
+      # Local builds ("dev") don't update themselves: otherwise they would overwrite tests.
       - if:
           condition:
             lambda: return std::string(ESPHOME_PROJECT_VERSION) != "dev";
           then:
-            - update.perform: actualizacion
+            - update.perform: firmware_update
 
 time:
   - platform: sntp
-    id: reloj
+    id: sys_time
     timezone: Europe/Madrid
 
 http_request:
   timeout: 10s
 
-# Bus QSPI de la pantalla
+# QSPI bus for the display
 spi:
-  id: bus_pantalla
+  id: display_bus
   type: quad
   clk_pin: GPIO47
   data_pins: [GPIO21, GPIO48, GPIO40, GPIO39]
@@ -76,12 +76,12 @@ spi:
 display:
   - platform: mipi_spi
     model: JC3248W535
-    id: pantalla
+    id: screen
     auto_clear_enabled: false
     update_interval: never
 
-# La pantalla es vertical de fábrica. Este chip no rota por hardware,
-# así que se gira en LVGL (por software).
+# The display is portrait from the factory. This chip can't rotate in hardware,
+# so LVGL rotates it (in software).
 lvgl:
   rotation: 90
 
@@ -91,16 +91,16 @@ i2c:
 
 touchscreen:
   - platform: axs15231
-    display: pantalla
+    display: screen
 
 output:
   - platform: ledc
     pin: GPIO1
-    id: pwm_brillo
+    id: backlight_pwm
 
 light:
   - platform: monochromatic
-    id: brillo
-    name: "Brillo"
-    output: pwm_brillo
+    id: backlight
+    name: "Brightness"
+    output: backlight_pwm
     restore_mode: RESTORE_DEFAULT_ON

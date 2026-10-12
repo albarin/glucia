@@ -1,11 +1,11 @@
-# Compila guition.yaml y crea un Release con el firmware, de donde la placa se lo
-# descarga sola (update: en hardware/guition.yaml).
+# Builds guition.yaml and creates a Release with the firmware, which the board
+# downloads on its own (update: in hardware/guition.yaml).
 #
-# Se lanza al subir una etiqueta: git tag v1.2 && git push origin v1.2
-# La etiqueta es la versión: la placa se actualiza cuando la publicada es distinta de la suya.
+# Triggered by pushing a tag: git tag v1.2 && git push origin v1.2
+# The tag is the version: the board updates when the published one differs from its own.
 #
-# Secretos del repo (Settings > Secrets and variables > Actions):
-#   AP_PASSWORD, OTA_PASSWORD: los mismos que en secrets.yaml
+# Repo secrets (Settings > Secrets and variables > Actions):
+#   AP_PASSWORD, OTA_PASSWORD: the same as in secrets.yaml
 name: Firmware
 
 on:
@@ -16,7 +16,7 @@ permissions:
   contents: write
 
 jobs:
-  publicar:
+  publish:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -25,10 +25,10 @@ jobs:
         with:
           python-version: "3.13"
 
-      - name: Instalar ESPHome
+      - name: Install ESPHome
         run: pip install esphome==2026.9.1
 
-      - name: Crear secrets.yaml
+      - name: Create secrets.yaml
         env:
           AP_PASSWORD: ${{ secrets.AP_PASSWORD }}
           OTA_PASSWORD: ${{ secrets.OTA_PASSWORD }}
@@ -37,24 +37,24 @@ jobs:
           python - <<'PY'
           import json, os
           with open("secrets.yaml", "w") as f:
-              # Las credenciales de Dexcom no van en la placa; solo hacen falta para validar.
-              f.write('dexcom_usuario: ""\ndexcom_password: ""\n')
+              # The Dexcom credentials are not on the board; they are only needed to validate.
+              f.write('dexcom_username: ""\ndexcom_password: ""\n')
               f.write(f'ap_password: {json.dumps(os.environ["AP_PASSWORD"])}\n')
               f.write(f'ota_password: {json.dumps(os.environ["OTA_PASSWORD"])}\n')
           PY
 
-      - name: Compilar
+      - name: Build
         run: esphome -s version "${GITHUB_REF_NAME}" compile guition.yaml
 
-      - name: Preparar binarios y manifiesto
+      - name: Prepare binaries and manifest
         run: |
-          mkdir -p publicar
-          cp .esphome/build/glucia/build/firmware.ota.bin publicar/glucia.ota.bin
-          cp .esphome/build/glucia/build/firmware.factory.bin publicar/glucia.factory.bin
-          MD5=$(md5sum publicar/glucia.ota.bin | cut -d' ' -f1)
-          # Rutas absolutas a esta versión: el manifiesto se pide por "latest", el binario no.
+          mkdir -p dist
+          cp .esphome/build/glucia/build/firmware.ota.bin dist/glucia.ota.bin
+          cp .esphome/build/glucia/build/firmware.factory.bin dist/glucia.factory.bin
+          MD5=$(md5sum dist/glucia.ota.bin | cut -d' ' -f1)
+          # Absolute paths to this version: the manifest is fetched via "latest", the binary is not.
           URL="https://github.com/${GITHUB_REPOSITORY}/releases/download/${GITHUB_REF_NAME}"
-          cat > publicar/manifest.json <<JSON
+          cat > dist/manifest.json <<JSON
           {
             "name": "Glucía",
             "version": "${GITHUB_REF_NAME}",
@@ -66,15 +66,15 @@ jobs:
                 "ota": {
                   "path": "${URL}/glucia.ota.bin",
                   "md5": "${MD5}",
-                  "summary": "Versión ${GITHUB_REF_NAME}"
+                  "summary": "Version ${GITHUB_REF_NAME}"
                 }
               }
             ]
           }
           JSON
-          cat publicar/manifest.json
+          cat dist/manifest.json
 
-      - name: Crear el Release
+      - name: Create the Release
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release create "${GITHUB_REF_NAME}" publicar/* --title "${GITHUB_REF_NAME}" --notes "Firmware ${GITHUB_REF_NAME}"
+        run: gh release create "${GITHUB_REF_NAME}" dist/* --title "${GITHUB_REF_NAME}" --notes "Firmware ${GITHUB_REF_NAME}"
