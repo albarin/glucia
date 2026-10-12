@@ -21,11 +21,15 @@ script:
     then:
       - lambda: |-
           auto now = id(sys_time).now().timestamp;
-          std::vector<int> h(8, 0);
+          const int N = ${history_len};
+          std::vector<int> h(N, 0);
           if (value > 0) {
-            // A smooth made-up history ending in previous -> value
+            // A made-up history: a gentle wave that ends in previous -> value
             int step = value - previous;
-            for (int i = 0; i < 8; i++) h[i] = std::max(40, value - step * (7 - i));
+            for (int k = 0; k < N; k++) {   // k readings before the newest
+              int v = k < 4 ? value - step * k : value - step * 4 + (int) (35 * sin((k - 4) / 5.0));
+              h[N - 1 - k] = std::max(40, std::min(350, v));
+            }
           }
           id(history) = h;
           id(last_ts) = value > 0 ? now - age_s : 0;

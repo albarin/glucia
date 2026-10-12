@@ -171,13 +171,13 @@ script:
           then:
             - http_request.post:
                 url: !lambda |-
-                  return "${dexcom_url}Publisher/ReadPublisherLatestGlucoseValues?sessionId=" + id(dx_session) + "&minutes=60&maxCount=8";
+                  return "${dexcom_url}Publisher/ReadPublisherLatestGlucoseValues?sessionId=" + id(dx_session) + "&minutes=" + std::to_string(${history_len} * id(period) / 60) + "&maxCount=${history_len}";
                 request_headers:
                   Content-Type: application/json
                   Accept: application/json
                 body: "{}"
                 capture_response: true
-                max_response_buffer_size: 4096
+                max_response_buffer_size: 8192   # ~110 bytes per reading
                 on_response:
                   then:
                     - lambda: |-
@@ -215,19 +215,25 @@ script:
                           return atoll(w.substr(start + 1, end - start - 1).c_str()) / 1000;
                         };
 
-                        // Dexcom returns the newest first; the history wants it last.
-                        std::vector<int> h(8, 0);
-                        int n = std::min((int) readings.size(), 8);
-                        for (int i = 0; i < n; i++) h[7 - i] = readings[i]["Value"].as<int>();
+                        // Dexcom returns the newest first. Each reading goes in the slot of its time,
+                        // so a missed reading leaves a gap instead of shifting the older ones.
+                        const int N = ${history_len};
+                        std::vector<int> h(N, 0);
+                        int64_t newest = to_seconds(readings[0]["WT"].as<const char *>());
+                        for (JsonVariant r : readings) {
+                          int64_t ts = to_seconds(r["WT"].as<const char *>());
+                          int slot = N - 1 - (int) ((newest - ts + id(period) / 2) / id(period));
+                          if (slot >= 0 && slot < N && h[slot] == 0) h[slot] = r["Value"].as<int>();
+                        }
                         id(history) = h;
-                        id(last_ts) = to_seconds(readings[0]["WT"].as<const char *>());
+                        id(last_ts) = newest;
 
                         // Delta only if the previous one is about 5 minutes earlier
                         id(delta_ok) = false;
-                        if (n > 1) {
-                          int64_t gap = id(last_ts) - to_seconds(readings[1]["WT"].as<const char *>());
+                        if (readings.size() > 1) {
+                          int64_t gap = newest - to_seconds(readings[1]["WT"].as<const char *>());
                           if (gap > 0 && gap <= 7 * 60) {
-                            id(delta) = h[7] - h[6];
+                            id(delta) = readings[0]["Value"].as<int>() - readings[1]["Value"].as<int>();
                             id(delta_ok) = true;
                           }
                         }
@@ -245,7 +251,8 @@ script:
                         }
                         id(trend) = tr;
                         id(status_text) = "";
-                        ESP_LOGI("dexcom", "Reading: %d mg/dL, trend %d", h[7], tr);
+                        int filled = std::count_if(h.begin(), h.end(), [](int v) { return v > 0; });
+                        ESP_LOGI("dexcom", "Reading: %d mg/dL, trend %d (%d of %d slots filled)", h.back(), tr, filled, N);
                 on_error:
                   then:
                     - lambda: |-

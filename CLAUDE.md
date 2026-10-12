@@ -2,7 +2,7 @@
 
 The device is called `glucia` (hostname `glucia.local`) and its rescue WiFi, `Glucia`. **Public** GitHub repo: `albarin/glucia`. Never put personal data in the repo (nor in commits, releases or issues): private context lives in `CLAUDE.local.md`, which is not committed.
 
-Desktop display that shows the glucose from a Dexcom sensor in large type: number, trend arrow, change since the previous reading, countdown to the next reading and the last 8 readings as bars. Inspired by https://migluvi.com.
+Desktop display that shows the glucose from a Dexcom sensor in large type: number, trend arrow, change since the previous reading, countdown to the next reading and a chart of the last 3 hours. Inspired by https://migluvi.com.
 
 ## Who it's for and constraints
 
@@ -47,7 +47,7 @@ hardware/
                          # local web page, OTA, automatic updates
 common/
   ui.yaml                # shared globals and fonts, "Display mode" select, `render` -> chosen look
-  ui-classic.yaml        # classic look: big number, arrow, countdown, last 8 readings
+  ui-classic.yaml        # classic look: big number, arrow, countdown, 3 h chart
   ui-kids.yaml           # kids look: zone color, emoji face, level gauge, arrow
   demo.yaml              # made-up readings every 15 s
   dexcom.yaml            # Dexcom Share login + read every 60 s
@@ -85,7 +85,7 @@ To check a UI change, run `make shots` (and `make shots LANG_SHOTS=es`) and look
 
 The UI doesn't know where the data comes from. A data source fills these globals and calls `script.execute: render`:
 
-- `history` (`std::vector<int>`, 8 items, newest at `[7]`, 0 = no data)
+- `history` (`std::vector<int>`, `history_len` slots (36 = 3 h), one per `period`, placed by time: `back()` is the newest, each slot before it one period earlier, 0 = no reading, which the chart draws as a gap)
 - `last_ts` (time of the reading in Unix seconds, the one Dexcom reports, not when it arrived)
 - `delta`, `delta_ok`, `trend` (Dexcom numbering: 1 rising fast, 4 steady, 7 falling fast, 8 not computable, 9 no trend)
 - `status_text` (text at the top left), `connected` (WiFi icon)
@@ -146,6 +146,8 @@ Safety net: `safe_mode` + ESP-IDF rollback (on by default). If the new firmware 
 3. A few weeks running at home, provoking failures, before shipping it.
 
 ## Gotchas found
+
+- The classic chart is drawn by hand in an `LV_EVENT_DRAW_MAIN` callback (`lv_draw_line` per segment, split where it crosses 70/180 so each piece has its zone color). What it draws lives in statics inside `render_classic`; `lv_obj_invalidate` only when they change. The 180/70 labels have fixed positions that match `y_of`: move them if the chart moves.
 
 - `id(widget)` in a lambda is not an `lv_obj_t *`: cast it, `(lv_obj_t *) id(lbl_number)`, to use LVGL functions.
 - Don't name a lambda local variable like a widget: `lv_obj_t *marker = (lv_obj_t *) id(marker);` compiles but segfaults (the local shadows the global). Also avoid ids that clash with C names (`clock`, `time`): hence `sys_time`.

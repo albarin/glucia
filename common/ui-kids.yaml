@@ -170,7 +170,7 @@ script:
 
           auto t = id(sys_time).now();
           int64_t now = t.is_valid() ? (int64_t) t.timestamp : 0;
-          int value = id(history)[7];
+          int value = id(history).back();
           bool has_data = value > 0 && id(last_ts) > 0;
           int64_t age = (has_data && now > 0) ? now - id(last_ts) : -1;
           bool stale = has_data && age > 3 * id(period);

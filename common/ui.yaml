@@ -9,6 +9,7 @@
 substitutions:
   low_limit: "70"     # mg/dL, below: red
   high_limit: "180"   # mg/dL, above: amber
+  history_len: "36"   # readings kept for the chart, one per `period` (36 x 5 min = 3 h)
   display_mode: "Classic"   # until it is changed on the web page: Classic or Kids
   theme: "Dark"             # until it is changed on the web page or with a gesture: Light or Dark
   hold_corner_px: "80"      # hidden gestures: size of the top corners (px)
@@ -19,10 +20,11 @@ packages:
   kids: !include ui-kids.yaml
 
 globals:
-  # Last 8 readings in mg/dL. [0] is the oldest, [7] the newest. 0 = no data.
+  # Readings in mg/dL, one slot per `period`, placed by time: back() is the newest,
+  # each slot before it one period earlier. 0 = no reading (a gap in the chart).
   - id: history
     type: std::vector<int>
-    initial_value: "std::vector<int>(8, 0)"
+    initial_value: "std::vector<int>(${history_len}, 0)"
   # Time of the last reading, in Unix seconds (the one Dexcom reports, not when it arrived).
   - id: last_ts
     type: int64_t

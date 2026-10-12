@@ -1,6 +1,6 @@
 # Glucía
 
-A desktop display that shows glucose readings from a Dexcom sensor: the current value, its trend arrow, the change since the last reading, a countdown to the next one and the last 8 readings as bars. It also has a kids look for children who can't read numbers yet: the whole screen takes the range color, with a friendly face and a level gauge. Inspired by [Gluvi](https://migluvi.com).
+A desktop display that shows glucose readings from a Dexcom sensor: the current value, its trend arrow, the change since the last reading, a countdown to the next one and a chart of the last 3 hours. It also has a kids look for children who can't read numbers yet: the whole screen takes the range color, with a friendly face and a level gauge. Inspired by [Gluvi](https://migluvi.com).
 
 It runs on its own: an ESP32-S3 board reads Dexcom Share directly over WiFi, with no Home Assistant or server. Built with [ESPHome](https://esphome.io) and LVGL.
 

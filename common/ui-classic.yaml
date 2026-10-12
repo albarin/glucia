@@ -1,4 +1,4 @@
-# Classic UI: big number, arrow, change, countdown and the last 8 readings as bars.
+# Classic UI: big number, arrow, change, countdown and a chart of the last 3 hours.
 # Part of ui.yaml (globals, shared fonts and `render` live there).
 
 font:
@@ -109,15 +109,22 @@ lvgl:
                   y: 214
                   text_color: 0x9CA3AF
                   text: ""
-              # Last 8 readings. Height and color are set in `render`.
-              - obj: {id: bar_0, x: 24,  y: 300, width: 50, height: 4, radius: 3, border_width: 0, bg_color: 0x333333, clickable: false, scrollable: false}
-              - obj: {id: bar_1, x: 80,  y: 300, width: 50, height: 4, radius: 3, border_width: 0, bg_color: 0x333333, clickable: false, scrollable: false}
-              - obj: {id: bar_2, x: 136, y: 300, width: 50, height: 4, radius: 3, border_width: 0, bg_color: 0x333333, clickable: false, scrollable: false}
-              - obj: {id: bar_3, x: 192, y: 300, width: 50, height: 4, radius: 3, border_width: 0, bg_color: 0x333333, clickable: false, scrollable: false}
-              - obj: {id: bar_4, x: 248, y: 300, width: 50, height: 4, radius: 3, border_width: 0, bg_color: 0x333333, clickable: false, scrollable: false}
-              - obj: {id: bar_5, x: 304, y: 300, width: 50, height: 4, radius: 3, border_width: 0, bg_color: 0x333333, clickable: false, scrollable: false}
-              - obj: {id: bar_6, x: 360, y: 300, width: 50, height: 4, radius: 3, border_width: 0, bg_color: 0x333333, clickable: false, scrollable: false}
-              - obj: {id: bar_7, x: 416, y: 300, width: 50, height: 4, radius: 3, border_width: 0, bg_color: 0x333333, clickable: false, scrollable: false}
+              # Last 3 hours as a line colored by zone, with the range limits as reference.
+              # The line is drawn in `render_classic` (chart_draw).
+              - label: {id: lbl_high, x: 16, y: 261, text_color: 0x9CA3AF, text: "${high_limit}"}
+              - label: {id: lbl_low,  x: 16, y: 289, text_color: 0x9CA3AF, text: "${low_limit}"}
+              - obj:
+                  id: chart
+                  x: 60
+                  y: 240
+                  width: 406
+                  height: 72
+                  radius: 0
+                  pad_all: 0
+                  border_width: 0
+                  bg_opa: 0%
+                  clickable: false
+                  scrollable: false
 
 script:
   - id: render_classic
@@ -129,7 +136,7 @@ script:
           // What time is it and how old is the reading?
           auto t = id(sys_time).now();
           int64_t now = t.is_valid() ? (int64_t) t.timestamp : 0;
-          int value = id(history)[7];
+          int value = id(history).back();
           bool has_data = value > 0 && id(last_ts) > 0;
           int64_t age = (has_data && now > 0) ? now - id(last_ts) : -1;
           bool stale = has_data && age > 3 * id(period);   // 3 missed readings
@@ -235,24 +242,85 @@ script:
           set_fill(countdown, inv ? 0x000000 : 0xE5E7EB, LV_PART_INDICATOR);
           set_hidden(countdown, stale || !has_data);
 
-          // The 8 bars: height proportional to the value between 40 and 300 mg/dL
-          lv_obj_t *bars[8] = {
-            (lv_obj_t *) id(bar_0), (lv_obj_t *) id(bar_1), (lv_obj_t *) id(bar_2), (lv_obj_t *) id(bar_3),
-            (lv_obj_t *) id(bar_4), (lv_obj_t *) id(bar_5), (lv_obj_t *) id(bar_6), (lv_obj_t *) id(bar_7),
-          };
-          const int BASE = 304, MIN_H = 4, MAX_H = 64;
-          for (int i = 0; i < 8; i++) {
-            int v = id(history)[i];
-            int h = MIN_H;
-            if (v > 0) {
-              int c = std::max(40, std::min(300, v));
-              h = MIN_H + (c - 40) * (MAX_H - MIN_H) / (300 - 40);
-            }
-            if (lv_obj_get_style_height(bars[i], LV_PART_MAIN) != h) {
-              lv_obj_set_height(bars[i], h);
-              lv_obj_set_y(bars[i], BASE - h);
-            }
-            set_fill(bars[i], inv ? 0x000000 : (stale ? GREY : color_of(v)), LV_PART_MAIN);
-            lv_opa_t opa = (inv && v <= 0) ? LV_OPA_20 : LV_OPA_COVER;
-            if (lv_obj_get_style_bg_opa(bars[i], LV_PART_MAIN) != opa) lv_obj_set_style_bg_opa(bars[i], opa, 0);
+          // Chart: what it draws lives in statics, so the draw callback can read it.
+          // Light theme: everything black (colors don't show on a colored background).
+          static std::vector<int> chart_hist;
+          static bool chart_mono = false;   // one color for the whole line instead of zone colors
+          static uint32_t chart_mono_color = 0;
+          static uint32_t chart_ref = 0;    // reference lines
+          static lv_opa_t chart_ref_opa = LV_OPA_COVER;
+          lv_obj_t *ch = (lv_obj_t *) id(chart);
+          static bool chart_ready = false;
+          if (!chart_ready) {
+            chart_ready = true;
+            lv_obj_add_event_cb(ch, [](lv_event_t *e) {
+              lv_layer_t *layer = lv_event_get_layer(e);
+              lv_area_t a;
+              lv_obj_get_coords((lv_obj_t *) lv_event_get_target(e), &a);
+              const int w = lv_area_get_width(&a), h = lv_area_get_height(&a);
+              const int lo = ${low_limit}, hi = ${high_limit};
+              // Value -> y: 40 at the bottom, 300 at the top (pad 3 px for the line width)
+              auto y_of = [&](float v) -> float {
+                v = std::max(40.0f, std::min(300.0f, v));
+                return a.y1 + 3 + (300 - v) * (h - 7) / 260.0f;
+              };
+              lv_draw_line_dsc_t d;
+              lv_draw_line_dsc_init(&d);
+              auto line = [&](float x1, float y1, float x2, float y2, uint32_t c) {
+                d.p1.x = x1; d.p1.y = y1; d.p2.x = x2; d.p2.y = y2;
+                d.color = lv_color_hex(c);
+                lv_draw_line(layer, &d);
+              };
+
+              d.width = 2;
+              d.opa = chart_ref_opa;
+              for (int lim : {lo, hi}) line(a.x1, y_of(lim), a.x2, y_of(lim), chart_ref);
+
+              const int n = chart_hist.size();
+              if (n < 2) return;
+              auto x_of = [&](int i) -> float { return a.x1 + 3 + (float) i * (w - 7) / (n - 1); };
+              auto color_of = [&](float v) -> uint32_t {
+                if (chart_mono) return chart_mono_color;
+                return v < lo ? 0xF2545B : v > hi ? 0xF5B83D : 0x4ADE80;
+              };
+              d.width = 4;
+              d.opa = LV_OPA_COVER;
+              d.round_start = 1;
+              d.round_end = 1;
+              for (int i = 0; i < n; i++) {
+                float v1 = chart_hist[i];
+                if (v1 <= 0) continue;
+                float v2 = i + 1 < n ? chart_hist[i + 1] : 0;
+                bool alone = v2 <= 0 && (i == 0 || chart_hist[i - 1] <= 0);
+                if (alone) { line(x_of(i), y_of(v1), x_of(i), y_of(v1), color_of(v1)); continue; }
+                if (v2 <= 0) continue;
+                // Split the segment where it crosses a limit, so each piece has its zone color
+                float cuts[4] = {0, 1, 1, 1};
+                int nc = 1;
+                for (int lim : {lo, hi})
+                  if ((v1 - lim) * (v2 - lim) < 0) cuts[nc++] = (lim - v1) / (v2 - v1);
+                std::sort(cuts, cuts + nc);
+                cuts[nc++] = 1;
+                for (int k = 0; k + 1 < nc; k++) {
+                  float ta = cuts[k], tb = cuts[k + 1];
+                  float va = v1 + (v2 - v1) * ta, vb = v1 + (v2 - v1) * tb;
+                  float xa = x_of(i) + (x_of(i + 1) - x_of(i)) * ta, xb = x_of(i) + (x_of(i + 1) - x_of(i)) * tb;
+                  line(xa, y_of(va), xb, y_of(vb), color_of((va + vb) / 2));
+                }
+              }
+            }, LV_EVENT_DRAW_MAIN, nullptr);
           }
+          bool mono = inv || stale;
+          uint32_t mono_color = inv ? 0x000000 : GREY;
+          uint32_t ref = inv ? 0x000000 : 0x6B7280;
+          lv_opa_t ref_opa = inv ? LV_OPA_40 : LV_OPA_COVER;
+          if (chart_hist != id(history) || chart_mono != mono || chart_mono_color != mono_color || chart_ref != ref || chart_ref_opa != ref_opa) {
+            chart_hist = id(history);
+            chart_mono = mono;
+            chart_mono_color = mono_color;
+            chart_ref = ref;
+            chart_ref_opa = ref_opa;
+            lv_obj_invalidate(ch);
+          }
+          // Labels of the reference lines (their y in the page matches y_of for 180 and 70)
+          for (auto *l : {id(lbl_high), id(lbl_low)}) set_ink((lv_obj_t *) l, soft_ink);

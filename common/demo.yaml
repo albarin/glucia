@@ -26,14 +26,23 @@ interval:
           if (!t.is_valid()) return;
 
           // Random walk between 45 and 320 mg/dL
-          int previous = id(history)[7];
-          int v = previous > 0 ? previous : 120;
-          v += (int) (random_uint32() % 41) - 20;   // -20 to +20
-          v = std::max(45, std::min(320, v));
+          auto step = [](int from) {
+            int v = from + (int) (random_uint32() % 41) - 20;   // -20 to +20
+            return std::max(45, std::min(320, v));
+          };
+          auto &h = id(history);
+          int previous = h.back();
+          // First reading: make up a past too, so the chart isn't empty
+          if (previous == 0) {
+            int w = 120;
+            for (auto &slot : h) slot = w = step(w);
+            previous = h.back();
+          }
+          int v = step(previous);
 
           // Shift the history and append the new reading
-          for (int i = 0; i < 7; i++) id(history)[i] = id(history)[i + 1];
-          id(history)[7] = v;
+          h.erase(h.begin());
+          h.push_back(v);
 
           id(delta_ok) = previous > 0;
           id(delta) = v - previous;
