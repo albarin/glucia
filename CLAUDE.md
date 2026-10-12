@@ -106,21 +106,20 @@ Safety net: `safe_mode` + ESP-IDF rollback (on by default). If the new firmware 
 - ESPHome 2026.9.1 in `.venv` (Python 3.13). Use `.venv/bin/esphome`.
 - `simulator.yaml` looks right: demo, countdown, inverted theme.
 - `simulator.yaml`, `simulator-dexcom.yaml` and `guition.yaml` build; `guition.yaml` is 1.3 MB (16% of flash, 34% of RAM).
+- `simulator-dexcom.yaml` against the real Dexcom Share (2026-10-12): login and readings work.
 - The `firmware.yml` Action: `v0.1` built and published the Release with the manifest and both binaries.
 
 **Builds but untested:**
 - Credentials outside the firmware (captive portal, `improv_serial`, local web page) and automatic update with rollback.
 
 **Untested:**
-- Against the real Dexcom (no credentials yet).
 - `guition.yaml` on the real board. Watch out for: orientation (`lvgl: rotation: 90`, maybe 270), touch orientation, brightness pin (GPIO1).
 
 ## Next steps
 
 1. Liveness ping: periodic `http_request.get` to healthchecks.io.
 2. Brightness control from the screen (the `backlight` `light` already exists in `hardware/guition.yaml`), mmol/L option.
-3. Test with the real Dexcom credentials once available.
-4. A few weeks running at home, provoking failures, before shipping it.
+3. A few weeks running at home, provoking failures, before shipping it.
 
 ## Gotchas found
 
