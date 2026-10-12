@@ -57,8 +57,8 @@ lvgl:
               - label:
                   id: lbl_wifi
                   align: TOP_RIGHT
-                  x: -58
-                  y: 8
+                  x: -54
+                  y: 10
                   text_font: f_icons
                   text_color: 0x9CA3AF
                   text: "\U000F05AA"
