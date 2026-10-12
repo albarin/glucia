@@ -2,7 +2,7 @@
 # (the stored choice wins over this one).
 substitutions:
   display_mode: Kids
-  theme: Light   # Light or Dark (a tap switches it)
+  theme: Light   # Light or Dark
 
 esphome:
   name: glucia-sim

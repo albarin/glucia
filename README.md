@@ -34,7 +34,12 @@ make sim     # simulator with made-up data
 | `make clean` | Delete build files |
 | `make shots` | Screenshots of every UI case in `dev/shots/sheet.png` (`LANG_SHOTS=es` for Spanish) |
 
-Tap the screen to switch between the light and dark themes. On the simulator, long-press it to pause the demo; the look (`Classic` or `Kids`) is the `display_mode` substitution in `simulator.yaml` (after changing it, run `make sim-reset`).
+On the screen itself, two hidden gestures (so a child can't trigger them by accident):
+
+- Hold the **top-left** corner for 5 seconds: switch between the light and dark themes.
+- Hold the **top-right** corner for 5 seconds: switch between the classic and kids looks.
+
+On the simulator, a long press anywhere else pauses the demo.
 
 ## Setting up the board
 

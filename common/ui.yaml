@@ -10,7 +10,9 @@ substitutions:
   low_limit: "70"     # mg/dL, below: red
   high_limit: "180"   # mg/dL, above: amber
   display_mode: "Classic"   # until it is changed on the web page: Classic or Kids
-  theme: "Dark"             # until it is changed on the web page or with a tap: Light or Dark
+  theme: "Dark"             # until it is changed on the web page or with a gesture: Light or Dark
+  hold_corner_px: "80"      # hidden gestures: size of the top corners (px)
+  hold_ms: "5000"           # hidden gestures: how long to hold (ms)
 
 packages:
   classic: !include ui-classic.yaml
@@ -43,6 +45,17 @@ globals:
   - id: connected
     type: bool
     initial_value: "false"
+  # Hidden gestures: which top corner the finger went down on (0 none, 1 left, 2 right),
+  # since when (millis) and whether this press already did its action.
+  - id: hold_corner
+    type: int
+    initial_value: "0"
+  - id: hold_since
+    type: uint32_t
+    initial_value: "0"
+  - id: hold_done
+    type: bool
+    initial_value: "false"
 
 # Shown on the local web page. The name is fixed in English: the stored choice is keyed by it.
 select:
@@ -55,7 +68,7 @@ select:
     restore_value: true
     on_value:
       - script.execute: render
-  # Light: the range color fills the screen. Dark: black background. A tap on the screen switches it.
+  # Light: the range color fills the screen. Dark: black background.
   - platform: template
     id: theme
     name: "Theme"
@@ -112,6 +125,52 @@ script:
                 then:
                   - lvgl.page.show: classic_page
             - script.execute: render_classic
+
+  # Hidden gestures, so a child can't trigger them by accident:
+  #   hold the top-left corner for 5 s  -> light/dark theme
+  #   hold the top-right corner for 5 s -> classic/kids look
+  # A long press anywhere else does what the data source wants (`long_press`).
+  - id: touch_down
+    then:
+      - lambda: |-
+          lv_point_t p;
+          lv_indev_get_point(lv_indev_active(), &p);
+          const int CORNER = ${hold_corner_px};
+          id(hold_corner) = p.y >= CORNER ? 0 : p.x < CORNER ? 1 : p.x >= lv_display_get_horizontal_resolution(nullptr) - CORNER ? 2 : 0;
+          id(hold_since) = millis();
+          id(hold_done) = false;
+
+  - id: touch_long_press
+    then:
+      - if:
+          condition:
+            lambda: return id(hold_corner) == 0;
+          then:
+            - script.execute: long_press
+
+  # Called every ~100 ms while the finger stays down after a long press
+  - id: touch_held
+    then:
+      - lambda: |-
+          if (id(hold_corner) == 0) return;
+          // Sliding out of the corner cancels it
+          lv_point_t p;
+          lv_indev_get_point(lv_indev_active(), &p);
+          const int CORNER = ${hold_corner_px};
+          int corner = p.y >= CORNER ? 0 : p.x < CORNER ? 1 : p.x >= lv_display_get_horizontal_resolution(nullptr) - CORNER ? 2 : 0;
+          if (corner != id(hold_corner)) id(hold_corner) = 0;
+      - if:
+          condition:
+            lambda: return id(hold_corner) != 0 && !id(hold_done) && millis() - id(hold_since) >= ${hold_ms};
+          then:
+            - lambda: id(hold_done) = true;
+            - if:
+                condition:
+                  lambda: return id(hold_corner) == 1;
+                then:
+                  - select.next: { id: theme, cycle: true }
+                else:
+                  - select.next: { id: display_mode, cycle: true }
 
 interval:
   # The countdown and the age of the reading change on their own over time.
