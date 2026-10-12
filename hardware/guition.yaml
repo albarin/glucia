@@ -1,0 +1,106 @@
+# Hardware real: Guition JC3248W535 (ESP32-S3, pantalla 3,5" 480x320, táctil capacitivo).
+esp32:
+  variant: esp32s3
+  flash_size: 16MB
+  framework:
+    type: esp-idf
+
+psram:
+  mode: octal
+  speed: 80MHz
+
+logger:
+
+# La WiFi no va dentro del firmware: se elige desde la red de rescate "Glucia"
+# (portal cautivo) o por USB (improv_serial, desde web.esphome.io).
+# Se guarda en el aparato y sobrevive a las actualizaciones.
+wifi:
+  # Si no hay WiFi guardada o no la encuentra en 1 minuto, crea su propia red
+  ap:
+    ssid: "Glucia"
+    password: !secret ap_password
+
+captive_portal:
+
+improv_serial:
+
+# Web local (http://glucia.local) para cambiar las credenciales de Dexcom y el brillo.
+web_server:
+  port: 80
+  version: 3
+  local: true
+
+ota:
+  # Desde el ordenador, en la misma red: esphome run guition.yaml
+  - platform: esphome
+    password: !secret ota_password
+  # Desde internet: lo usa la actualización automática (update: más abajo)
+  - platform: http_request
+
+# Si el firmware nuevo se cuelga o se reinicia antes de llevar 1 minuto
+# funcionando, el arranque vuelve al anterior (rollback del ESP-IDF, activo por defecto
+# con safe_mode). Solo funciona si el gestor de arranque se grabó por USB con esta configuración.
+safe_mode:
+
+# Actualizaciones automáticas: cada 6 h mira el manifiesto que publica la GitHub Action
+# y, si la versión es distinta de la instalada, la descarga, comprueba el MD5 y la instala.
+update:
+  - platform: http_request
+    id: actualizacion
+    name: "Firmware"
+    source: https://github.com/albarin/glucia/releases/latest/download/manifest.json
+    update_interval: 6h
+    on_update_available:
+      # Las compilaciones locales ("dev") no se actualizan solas: si no, pisaría las pruebas.
+      - if:
+          condition:
+            lambda: return std::string(ESPHOME_PROJECT_VERSION) != "dev";
+          then:
+            - update.perform: actualizacion
+
+time:
+  - platform: sntp
+    id: reloj
+    timezone: Europe/Madrid
+
+http_request:
+  timeout: 10s
+
+# Bus QSPI de la pantalla
+spi:
+  id: bus_pantalla
+  type: quad
+  clk_pin: GPIO47
+  data_pins: [GPIO21, GPIO48, GPIO40, GPIO39]
+
+display:
+  - platform: mipi_spi
+    model: JC3248W535
+    id: pantalla
+    auto_clear_enabled: false
+    update_interval: never
+
+# La pantalla es vertical de fábrica. Este chip no rota por hardware,
+# así que se gira en LVGL (por software).
+lvgl:
+  rotation: 90
+
+i2c:
+  sda: GPIO4
+  scl: GPIO8
+
+touchscreen:
+  - platform: axs15231
+    display: pantalla
+
+output:
+  - platform: ledc
+    pin: GPIO1
+    id: pwm_brillo
+
+light:
+  - platform: monochromatic
+    id: brillo
+    name: "Brillo"
+    output: pwm_brillo
+    restore_mode: RESTORE_DEFAULT_ON

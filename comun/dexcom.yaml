@@ -1,0 +1,262 @@
+# Datos reales de Dexcom Share (API no oficial, la misma que usa pydexcom).
+# Las credenciales son las de la cuenta PRINCIPAL de Dexcom (quien lleva el sensor),
+# con Share activado y al menos un seguidor aceptado.
+# Pulsación larga en la pantalla: fuerza una lectura ahora.
+
+substitutions:
+  # Credenciales iniciales. Vacías en la placa: se ponen desde su web local
+  # (http://glucia.local) y se guardan en el aparato. El simulador las saca de secrets.yaml.
+  dexcom_usuario: ""
+  dexcom_password: ""
+  # Fuera de EE. UU. (España incluida). En EE. UU. sería https://share2.dexcom.com/...
+  dexcom_url: "https://shareous1.dexcom.com/ShareWebServices/Services/"
+  dexcom_app_id: "d89443d2-327c-4a6f-89e5-496bbb0317db"
+
+globals:
+  - id: periodo
+    type: int
+    initial_value: "300"   # Dexcom manda una lectura cada 5 minutos
+  - id: dx_cuenta
+    type: std::string
+    initial_value: '""'
+  - id: dx_sesion
+    type: std::string
+    initial_value: '""'
+  # No volver a intentar el login antes de esta hora (segundos Unix).
+  # Evita que una contraseña mal puesta bloquee la cuenta de Dexcom a base de reintentos.
+  - id: dx_esperar_hasta
+    type: int64_t
+    initial_value: "0"
+
+# Credenciales guardadas en el propio aparato: no van dentro del firmware.
+# Se cambian desde la web local y sobreviven a reinicios y actualizaciones.
+text:
+  - platform: template
+    id: dexcom_usuario
+    name: "Dexcom usuario"
+    mode: text
+    optimistic: true
+    restore_value: true
+    initial_value: "${dexcom_usuario}"
+    on_value:
+      - script.execute: dexcom_olvidar
+  - platform: template
+    id: dexcom_password
+    name: "Dexcom contraseña"
+    mode: password
+    optimistic: true
+    restore_value: true
+    initial_value: "${dexcom_password}"
+    on_value:
+      - script.execute: dexcom_olvidar
+
+script:
+  # Credenciales nuevas: se descarta la sesión y la espera por fallos anteriores.
+  # No se entra al momento: la próxima vuelta (como mucho 1 min) ya tendrá usuario y contraseña.
+  - id: dexcom_olvidar
+    then:
+      - lambda: |-
+          id(dx_cuenta) = "";
+          id(dx_sesion) = "";
+          id(dx_esperar_hasta) = 0;
+
+  # 1) usuario + contraseña -> account ID; 2) account ID + contraseña -> session ID
+  - id: dexcom_login
+    then:
+      - lambda: |-
+          id(dx_cuenta) = "";
+          id(dx_sesion) = "";
+      - http_request.post:
+          url: ${dexcom_url}General/AuthenticatePublisherAccount
+          request_headers:
+            Content-Type: application/json
+            Accept: application/json
+          json: |-
+            root["accountName"] = id(dexcom_usuario).state;
+            root["password"] = id(dexcom_password).state;
+            root["applicationId"] = "${dexcom_app_id}";
+          capture_response: true
+          max_response_buffer_size: 1024
+          on_response:
+            then:
+              - lambda: |-
+                  id(conectado) = true;
+                  if (response->status_code != 200) {
+                    ESP_LOGW("dexcom", "Login paso 1 falló (%d): %s", response->status_code, body.c_str());
+                    bool credenciales = body.find("AccountPassword") != std::string::npos ||
+                                        body.find("Authenticate") != std::string::npos ||
+                                        body.find("accountName") != std::string::npos;
+                    id(estado) = credenciales ? "Dexcom: revisa usuario y contraseña" : "Dexcom: error al entrar";
+                    // Credenciales mal: no reintentar en 30 min. Otro error: en 2 min.
+                    auto t = id(reloj).now();
+                    if (t.is_valid()) id(dx_esperar_hasta) = (int64_t) t.timestamp + (credenciales ? 1800 : 120);
+                    return;
+                  }
+                  // La respuesta es el UUID entre comillas: "1234-..."
+                  std::string s = body;
+                  s.erase(std::remove(s.begin(), s.end(), '"'), s.end());
+                  id(dx_cuenta) = s;
+          on_error:
+            then:
+              - lambda: |-
+                  id(conectado) = false;
+                  id(estado) = "Sin conexión con Dexcom";
+      - if:
+          condition:
+            lambda: return !id(dx_cuenta).empty();
+          then:
+            - http_request.post:
+                url: ${dexcom_url}General/LoginPublisherAccountById
+                request_headers:
+                  Content-Type: application/json
+                  Accept: application/json
+                json: |-
+                  root["accountId"] = id(dx_cuenta);
+                  root["password"] = id(dexcom_password).state;
+                  root["applicationId"] = "${dexcom_app_id}";
+                capture_response: true
+                max_response_buffer_size: 1024
+                on_response:
+                  then:
+                    - lambda: |-
+                        std::string s = body;
+                        s.erase(std::remove(s.begin(), s.end(), '"'), s.end());
+                        // Un UUID de ceros también es un fallo
+                        if (response->status_code != 200 || s.empty() || s == "00000000-0000-0000-0000-000000000000") {
+                          ESP_LOGW("dexcom", "Login paso 2 falló (%d): %s", response->status_code, body.c_str());
+                          id(estado) = "Dexcom: error al entrar";
+                          auto t = id(reloj).now();
+                          if (t.is_valid()) id(dx_esperar_hasta) = (int64_t) t.timestamp + 120;
+                          return;
+                        }
+                        id(dx_sesion) = s;
+                        ESP_LOGI("dexcom", "Sesión iniciada");
+                on_error:
+                  then:
+                    - lambda: |-
+                        id(conectado) = false;
+                        id(estado) = "Sin conexión con Dexcom";
+
+  # Lee las 8 últimas lecturas (máximo 1 hora atrás) y rellena las globales.
+  - id: dexcom_leer
+    mode: single
+    then:
+      - if:
+          condition:
+            lambda: |-
+              if (!network::is_connected()) {
+                id(conectado) = false;
+                id(estado) = "Sin WiFi: conéctate a la red Glucia";
+                return false;
+              }
+              if (id(dexcom_usuario).state.empty() || id(dexcom_password).state.empty()) {
+                id(estado) = "Falta Dexcom: entra en glucia.local";
+                return false;
+              }
+              if (!id(dx_sesion).empty()) return false;
+              // Sin hora no se puede respetar la espera tras un fallo: mejor no intentarlo.
+              auto t = id(reloj).now();
+              if (!t.is_valid()) {
+                id(estado) = "Conectando...";
+                return false;
+              }
+              return (int64_t) t.timestamp >= id(dx_esperar_hasta);
+          then:
+            - script.execute: dexcom_login
+            - script.wait: dexcom_login
+      - if:
+          condition:
+            lambda: return network::is_connected() && !id(dx_sesion).empty();
+          then:
+            - http_request.post:
+                url: !lambda |-
+                  return "${dexcom_url}Publisher/ReadPublisherLatestGlucoseValues?sessionId=" + id(dx_sesion) + "&minutes=60&maxCount=8";
+                request_headers:
+                  Content-Type: application/json
+                  Accept: application/json
+                body: "{}"
+                capture_response: true
+                max_response_buffer_size: 4096
+                on_response:
+                  then:
+                    - lambda: |-
+                        id(conectado) = true;
+                        if (response->status_code != 200) {
+                          ESP_LOGW("dexcom", "Lectura falló (%d): %s", response->status_code, body.c_str());
+                          // Sesión caducada: se repite el login en la próxima vuelta
+                          if (body.find("SessionIdNotFound") != std::string::npos || body.find("SessionNotValid") != std::string::npos) {
+                            id(dx_sesion) = "";
+                          } else {
+                            id(estado) = "Dexcom: error " + std::to_string(response->status_code);
+                          }
+                          return;
+                        }
+
+                        JsonDocument doc;
+                        if (deserializeJson(doc, body)) {
+                          ESP_LOGW("dexcom", "Respuesta no es JSON: %s", body.c_str());
+                          id(estado) = "Dexcom: respuesta rara";
+                          return;
+                        }
+                        JsonArray lecturas = doc.as<JsonArray>();
+                        if (lecturas.size() == 0) {
+                          id(estado) = "Dexcom no tiene lecturas recientes";
+                          return;
+                        }
+
+                        // "WT": "Date(1728662400000)" -> segundos Unix
+                        auto a_segundos = [](const char *wt) -> int64_t {
+                          std::string w = wt ? wt : "";
+                          size_t ini = w.find('('), fin = w.find_first_of("+-)", ini + 1);
+                          if (ini == std::string::npos || fin == std::string::npos) return 0;
+                          return atoll(w.substr(ini + 1, fin - ini - 1).c_str()) / 1000;
+                        };
+
+                        // Dexcom devuelve la más reciente primero; el historial la quiere al final.
+                        std::vector<int> h(8, 0);
+                        int n = std::min((int) lecturas.size(), 8);
+                        for (int i = 0; i < n; i++) h[7 - i] = lecturas[i]["Value"].as<int>();
+                        id(historial) = h;
+                        id(ultima_ts) = a_segundos(lecturas[0]["WT"].as<const char *>());
+
+                        // Delta solo si la anterior es de unos 5 minutos antes
+                        id(delta_ok) = false;
+                        if (n > 1) {
+                          int64_t hueco = id(ultima_ts) - a_segundos(lecturas[1]["WT"].as<const char *>());
+                          if (hueco > 0 && hueco <= 7 * 60) {
+                            id(delta) = h[7] - h[6];
+                            id(delta_ok) = true;
+                          }
+                        }
+
+                        // La tendencia puede venir como texto ("Flat") o como número (4)
+                        JsonVariant tv = lecturas[0]["Trend"];
+                        int tr = 0;
+                        if (tv.is<int>()) {
+                          tr = tv.as<int>();
+                        } else {
+                          static const char *NOMBRES[] = {"None", "DoubleUp", "SingleUp", "FortyFiveUp", "Flat",
+                            "FortyFiveDown", "SingleDown", "DoubleDown", "NotComputable", "RateOutOfRange"};
+                          std::string s = tv.as<std::string>();
+                          for (int i = 0; i < 10; i++) if (s == NOMBRES[i]) tr = i;
+                        }
+                        id(tendencia) = tr;
+                        id(estado) = "";
+                        ESP_LOGI("dexcom", "Lectura: %d mg/dL, tendencia %d", h[7], tr);
+                on_error:
+                  then:
+                    - lambda: |-
+                        id(conectado) = false;
+                        id(estado) = "Sin conexión con Dexcom";
+      - script.execute: pintar
+
+  - id: pulsacion_larga
+    then:
+      - script.execute: dexcom_leer
+
+interval:
+  # Pregunta cada minuto: así la lectura nueva aparece como mucho 1 minuto tarde.
+  - interval: 60s
+    startup_delay: 5s
+    then:
+      - script.execute: dexcom_leer

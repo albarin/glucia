@@ -1,0 +1,14 @@
+substitutions:
+  # La pone la GitHub Action al publicar (la etiqueta, p. ej. v1.2). En compilaciones locales, "dev".
+  version: "dev"
+
+esphome:
+  name: glucia
+  project:
+    name: albarin.glucia
+    version: "${version}"
+
+packages:
+  hardware: !include hardware/guition.yaml
+  interfaz: !include comun/interfaz.yaml
+  datos: !include comun/dexcom.yaml

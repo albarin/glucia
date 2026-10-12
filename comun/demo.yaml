@@ -1,0 +1,47 @@
+# Datos de prueba: una lectura inventada cada 15 segundos.
+# Pulsación larga en la pantalla: pausa la demo (sirve para ver el dato caducado).
+
+globals:
+  - id: periodo
+    type: int
+    initial_value: "15"   # segundos entre lecturas (Dexcom real: 300)
+  - id: demo_pausada
+    type: bool
+    initial_value: "false"
+
+script:
+  - id: pulsacion_larga
+    then:
+      - lambda: |-
+          id(demo_pausada) = !id(demo_pausada);
+          id(estado) = id(demo_pausada) ? "Demo en pausa" : "Modo demo";
+      - script.execute: pintar
+
+interval:
+  - interval: 15s
+    then:
+      - lambda: |-
+          if (id(demo_pausada)) return;
+          auto t = id(reloj).now();
+          if (!t.is_valid()) return;
+
+          // Paseo aleatorio entre 45 y 320 mg/dL
+          int anterior = id(historial)[7];
+          int v = anterior > 0 ? anterior : 120;
+          v += (int) (random_uint32() % 41) - 20;   // de -20 a +20
+          v = std::max(45, std::min(320, v));
+
+          // Desplaza el historial y mete la lectura nueva al final
+          for (int i = 0; i < 7; i++) id(historial)[i] = id(historial)[i + 1];
+          id(historial)[7] = v;
+
+          id(delta_ok) = anterior > 0;
+          id(delta) = v - anterior;
+          int d = id(delta);
+          // Tendencia aproximada, con los mismos números que usa Dexcom (1 a 7)
+          id(tendencia) = d >= 15 ? 1 : d >= 10 ? 2 : d >= 5 ? 3 : d > -5 ? 4 : d > -10 ? 5 : d > -15 ? 6 : 7;
+
+          id(ultima_ts) = t.timestamp;
+          id(conectado) = true;
+          id(estado) = "Modo demo";
+      - script.execute: pintar

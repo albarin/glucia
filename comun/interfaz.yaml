@@ -1,0 +1,316 @@
+# Interfaz: fuentes, pantalla y lógica de dibujo.
+# Es igual en el simulador y en la placa.
+# Necesita que el paquete de datos (demo.yaml o dexcom.yaml) defina:
+#   - el global `periodo` (segundos entre lecturas)
+#   - el script `pulsacion_larga`
+
+substitutions:
+  limite_bajo: "70"     # mg/dL, por debajo: rojo
+  limite_alto: "180"    # mg/dL, por encima: ámbar
+
+globals:
+  # Últimas 8 lecturas en mg/dL. [0] es la más antigua, [7] la más reciente. 0 = sin dato.
+  - id: historial
+    type: std::vector<int>
+    initial_value: "std::vector<int>(8, 0)"
+  # Hora de la última lectura, en segundos Unix (la que da Dexcom, no la de recepción).
+  - id: ultima_ts
+    type: int64_t
+    initial_value: "0"
+  - id: delta
+    type: int
+    initial_value: "0"
+  - id: delta_ok
+    type: bool
+    initial_value: "false"
+  # Tendencia como la numera Dexcom: 1 sube mucho ... 4 estable ... 7 baja mucho.
+  - id: tendencia
+    type: int
+    initial_value: "0"
+  # Mensaje de error o estado para mostrar arriba a la izquierda.
+  - id: estado
+    type: std::string
+    initial_value: '""'
+  # ¿La última petición a la fuente de datos funcionó?
+  - id: conectado
+    type: bool
+    initial_value: "false"
+  # Tema invertido: el color del rango pasa al fondo.
+  - id: invertido
+    type: bool
+    initial_value: "false"
+
+font:
+  - file: "gfonts://Roboto@700"
+    id: f_numero
+    size: 150
+    bpp: 4
+    glyphs: "0123456789-"
+  - file: "gfonts://Roboto@500"
+    id: f_medio
+    size: 44
+    bpp: 4
+    glyphs: "0123456789+-"
+  - file: "gfonts://Roboto@400"
+    id: f_texto
+    size: 20
+    bpp: 4
+    glyphsets: [GF_Latin_Kernel]
+    glyphs: "áéíóúüñÁÉÍÓÚÜÑ¿¡·"
+  - file: "https://github.com/Templarian/MaterialDesign-Webfont/raw/v7.4.47/fonts/materialdesignicons-webfont.ttf"
+    id: f_flecha
+    size: 96
+    bpp: 4
+    glyphs: [
+      "\U000F013F",  # chevron-double-up    (sube rápido)
+      "\U000F005D",  # arrow-up             (sube)
+      "\U000F005C",  # arrow-top-right      (sube despacio)
+      "\U000F0054",  # arrow-right          (estable)
+      "\U000F0043",  # arrow-bottom-right   (baja despacio)
+      "\U000F0045",  # arrow-down           (baja)
+      "\U000F013C",  # chevron-double-down  (baja rápido)
+      "\U000F02D6",  # help                 (no calculable)
+      "\U000F0374",  # minus                (sin tendencia)
+    ]
+  - file: "https://github.com/Templarian/MaterialDesign-Webfont/raw/v7.4.47/fonts/materialdesignicons-webfont.ttf"
+    id: f_iconos
+    size: 26
+    bpp: 4
+    glyphs: [
+      "\U000F05A9",  # wifi
+      "\U000F05AA",  # wifi-off
+    ]
+
+lvgl:
+  default_font: f_texto
+  pages:
+    - id: principal
+      bg_color: 0x000000
+      widgets:
+        # Fondo a pantalla completa: recibe los toques y cambia de color con el tema invertido.
+        - obj:
+            id: fondo
+            x: 0
+            y: 0
+            width: 100%
+            height: 100%
+            radius: 0
+            border_width: 0
+            pad_all: 0
+            bg_color: 0x000000
+            scrollable: false
+            on_short_click:
+              - lambda: id(invertido) = !id(invertido);
+              - script.execute: pintar
+            on_long_press:
+              - script.execute: pulsacion_larga
+            widgets:
+              - label:
+                  id: lbl_estado
+                  x: 16
+                  y: 10
+                  text_color: 0x9CA3AF
+                  text: "Arrancando..."
+              - label:
+                  id: lbl_wifi
+                  align: TOP_RIGHT
+                  x: -14
+                  y: 8
+                  text_font: f_iconos
+                  text_color: 0x9CA3AF
+                  text: "\U000F05AA"
+              - label:
+                  id: lbl_numero
+                  x: 10
+                  y: 30
+                  width: 310
+                  text_align: CENTER
+                  text_font: f_numero
+                  text_color: 0x6B7280
+                  text: "--"
+              - label:
+                  id: lbl_flecha
+                  x: 330
+                  y: 36
+                  text_font: f_flecha
+                  text_color: 0xFFFFFF
+                  text: ""
+              - label:
+                  id: lbl_delta
+                  x: 336
+                  y: 136
+                  text_font: f_medio
+                  text_color: 0xFFFFFF
+                  text: ""
+              - label:
+                  id: lbl_unidad
+                  x: 338
+                  y: 186
+                  text_color: 0xFFFFFF
+                  text: "mg/dL"
+              - bar:
+                  id: barra_cuenta
+                  x: 30
+                  y: 208
+                  width: 270
+                  height: 8
+                  min_value: 0
+                  max_value: 100
+                  value: 0
+                  bg_color: 0x333333
+                  indicator:
+                    bg_color: 0xE5E7EB
+              - label:
+                  id: lbl_edad
+                  x: 338
+                  y: 214
+                  text_color: 0x9CA3AF
+                  text: ""
+              # Las 8 últimas lecturas. La altura y el color se cambian en `pintar`.
+              - obj: {id: barra_0, x: 24,  y: 300, width: 50, height: 4, radius: 3, border_width: 0, bg_color: 0x333333, clickable: false, scrollable: false}
+              - obj: {id: barra_1, x: 80,  y: 300, width: 50, height: 4, radius: 3, border_width: 0, bg_color: 0x333333, clickable: false, scrollable: false}
+              - obj: {id: barra_2, x: 136, y: 300, width: 50, height: 4, radius: 3, border_width: 0, bg_color: 0x333333, clickable: false, scrollable: false}
+              - obj: {id: barra_3, x: 192, y: 300, width: 50, height: 4, radius: 3, border_width: 0, bg_color: 0x333333, clickable: false, scrollable: false}
+              - obj: {id: barra_4, x: 248, y: 300, width: 50, height: 4, radius: 3, border_width: 0, bg_color: 0x333333, clickable: false, scrollable: false}
+              - obj: {id: barra_5, x: 304, y: 300, width: 50, height: 4, radius: 3, border_width: 0, bg_color: 0x333333, clickable: false, scrollable: false}
+              - obj: {id: barra_6, x: 360, y: 300, width: 50, height: 4, radius: 3, border_width: 0, bg_color: 0x333333, clickable: false, scrollable: false}
+              - obj: {id: barra_7, x: 416, y: 300, width: 50, height: 4, radius: 3, border_width: 0, bg_color: 0x333333, clickable: false, scrollable: false}
+
+script:
+  # Vuelca los globales a la pantalla. Se llama al llegar un dato y una vez por segundo.
+  - id: pintar
+    then:
+      - lambda: |-
+          const int bajo = ${limite_bajo};
+          const int alto = ${limite_alto};
+
+          // ¿Qué hora es y cuánto tiene el dato?
+          auto t = id(reloj).now();
+          int64_t ahora = t.is_valid() ? (int64_t) t.timestamp : 0;
+          int valor = id(historial)[7];
+          bool hay_dato = valor > 0 && id(ultima_ts) > 0;
+          int64_t edad = (hay_dato && ahora > 0) ? ahora - id(ultima_ts) : -1;
+          bool caducado = hay_dato && edad > 3 * id(periodo);   // 3 lecturas perdidas
+
+          // Colores
+          auto color_de = [&](int v) -> uint32_t {
+            if (v <= 0) return 0x333333;    // sin dato
+            if (v < bajo) return 0xF2545B;  // rojo
+            if (v > alto) return 0xF5B83D;  // ámbar
+            return 0x4ADE80;                // verde
+          };
+          const uint32_t GRIS = 0x6B7280;
+          uint32_t color = (hay_dato && !caducado) ? color_de(valor) : GRIS;
+          bool inv = id(invertido) && hay_dato && !caducado;
+          uint32_t color_fondo = inv ? color : 0x000000;
+          uint32_t tinta = inv ? 0x000000 : 0xFFFFFF;
+          uint32_t tinta_suave = inv ? 0x000000 : 0x9CA3AF;
+
+          // Solo cambia texto, colores y tamaños si son distintos: LVGL redibuja
+          // con cada cambio aunque el valor sea el mismo.
+          auto poner = [](lv_obj_t *obj, const std::string &txt) {
+            if (txt != lv_label_get_text(obj)) lv_label_set_text(obj, txt.c_str());
+          };
+          auto tinta_de = [](lv_obj_t *obj, uint32_t c) {
+            lv_color_t nuevo = lv_color_hex(c);
+            if (!lv_color_eq(lv_obj_get_style_text_color(obj, LV_PART_MAIN), nuevo)) lv_obj_set_style_text_color(obj, nuevo, 0);
+          };
+          auto relleno_de = [](lv_obj_t *obj, uint32_t c, lv_part_t parte) {
+            lv_color_t nuevo = lv_color_hex(c);
+            if (!lv_color_eq(lv_obj_get_style_bg_color(obj, parte), nuevo)) lv_obj_set_style_bg_color(obj, nuevo, parte);
+          };
+          auto ocultar = [](lv_obj_t *obj, bool si) {
+            if (si == lv_obj_has_flag(obj, LV_OBJ_FLAG_HIDDEN)) return;
+            if (si) lv_obj_add_flag(obj, LV_OBJ_FLAG_HIDDEN);
+            else lv_obj_remove_flag(obj, LV_OBJ_FLAG_HIDDEN);
+          };
+
+          relleno_de(id(fondo), color_fondo, LV_PART_MAIN);
+
+          // Número grande
+          lv_obj_t *numero = (lv_obj_t *) id(lbl_numero);
+          poner(numero, hay_dato ? std::to_string(valor) : "--");
+          tinta_de(numero, inv ? 0x000000 : color);
+
+          // Flecha de tendencia
+          static const char *FLECHAS[] = {
+            "\U000F0374", "\U000F013F", "\U000F005D", "\U000F005C", "\U000F0054",
+            "\U000F0043", "\U000F0045", "\U000F013C", "\U000F02D6", "\U000F0374",
+          };
+          int tr = id(tendencia);
+          if (tr < 0 || tr > 9) tr = 0;
+          lv_obj_t *flecha = (lv_obj_t *) id(lbl_flecha);
+          poner(flecha, (hay_dato && !caducado) ? FLECHAS[tr] : "");
+          tinta_de(flecha, tinta);
+
+          // Cambio respecto a la lectura anterior
+          lv_obj_t *dlt = (lv_obj_t *) id(lbl_delta);
+          std::string txt_delta = "";
+          if (hay_dato && !caducado && id(delta_ok))
+            txt_delta = (id(delta) > 0 ? "+" : "") + std::to_string(id(delta));
+          poner(dlt, txt_delta);
+          tinta_de(dlt, tinta);
+          tinta_de((lv_obj_t *) id(lbl_unidad), tinta);
+
+          // Edad del dato
+          lv_obj_t *lbl_ed = (lv_obj_t *) id(lbl_edad);
+          std::string txt_edad = "";
+          if (edad >= 0) {
+            int min = edad / 60;
+            if (min >= 1) txt_edad = "hace " + std::to_string(min) + " min";
+            else txt_edad = caducado ? "hace " + std::to_string((int) edad) + " s" : "ahora";
+          }
+          poner(lbl_ed, txt_edad);
+          tinta_de(lbl_ed, caducado ? 0xF2545B : tinta_suave);
+
+          // Estado arriba a la izquierda: error de la fuente o aviso de dato viejo
+          lv_obj_t *lbl_est = (lv_obj_t *) id(lbl_estado);
+          std::string txt_estado = id(estado);
+          if (txt_estado.empty() && caducado) txt_estado = "Sin datos nuevos";
+          poner(lbl_est, txt_estado);
+          tinta_de(lbl_est, tinta_suave);
+
+          // Icono de conexión
+          lv_obj_t *wifi = (lv_obj_t *) id(lbl_wifi);
+          poner(wifi, id(conectado) ? "\U000F05A9" : "\U000F05AA");
+          tinta_de(wifi, id(conectado) ? tinta_suave : 0xF2545B);
+
+          // Barra de cuenta atrás hasta la próxima lectura
+          lv_obj_t *cuenta = (lv_obj_t *) id(barra_cuenta);
+          int pct = 0;
+          if (hay_dato && !caducado && ahora > 0) {
+            int64_t restante = id(ultima_ts) + id(periodo) - ahora;
+            pct = (int) (restante * 100 / id(periodo));
+            pct = std::max(0, std::min(100, pct));
+          }
+          lv_bar_set_value(cuenta, pct, LV_ANIM_OFF);
+          relleno_de(cuenta, inv ? 0x000000 : 0xE5E7EB, LV_PART_INDICATOR);
+          ocultar(cuenta, caducado || !hay_dato);
+
+          // Las 8 barras: altura proporcional al valor entre 40 y 300 mg/dL
+          lv_obj_t *barras[8] = {
+            (lv_obj_t *) id(barra_0), (lv_obj_t *) id(barra_1), (lv_obj_t *) id(barra_2), (lv_obj_t *) id(barra_3),
+            (lv_obj_t *) id(barra_4), (lv_obj_t *) id(barra_5), (lv_obj_t *) id(barra_6), (lv_obj_t *) id(barra_7),
+          };
+          const int BASE = 304, ALTO_MIN = 4, ALTO_MAX = 64;
+          for (int i = 0; i < 8; i++) {
+            int v = id(historial)[i];
+            int h = ALTO_MIN;
+            if (v > 0) {
+              int c = std::max(40, std::min(300, v));
+              h = ALTO_MIN + (c - 40) * (ALTO_MAX - ALTO_MIN) / (300 - 40);
+            }
+            if (lv_obj_get_style_height(barras[i], LV_PART_MAIN) != h) {
+              lv_obj_set_height(barras[i], h);
+              lv_obj_set_y(barras[i], BASE - h);
+            }
+            relleno_de(barras[i], inv ? 0x000000 : (caducado ? GRIS : color_de(v)), LV_PART_MAIN);
+            lv_opa_t opa = (inv && v <= 0) ? LV_OPA_20 : LV_OPA_COVER;
+            if (lv_obj_get_style_bg_opa(barras[i], LV_PART_MAIN) != opa) lv_obj_set_style_bg_opa(barras[i], opa, 0);
+          }
+
+interval:
+  # La cuenta atrás y la edad del dato cambian solas con el tiempo.
+  - interval: 1s
+    then:
+      - script.execute: pintar

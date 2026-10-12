@@ -1,0 +1,12 @@
+esphome:
+  name: glucia-sim-dexcom
+
+# En el simulador las credenciales salen de secrets.yaml (en la placa, de su web local).
+substitutions:
+  dexcom_usuario: !secret dexcom_usuario
+  dexcom_password: !secret dexcom_password
+
+packages:
+  hardware: !include hardware/simulador.yaml
+  interfaz: !include comun/interfaz.yaml
+  datos: !include comun/dexcom.yaml
