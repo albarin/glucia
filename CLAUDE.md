@@ -47,7 +47,7 @@ hardware/
                          # local web page, OTA, automatic updates
 common/
   ui.yaml                # classic UI: big number, arrow, countdown, last 8 readings
-  ui-kids.yaml           # kids UI: zone color, friendly face, level gauge, arrow (same contract)
+  ui-kids.yaml           # kids UI: zone color, emoji face, level gauge, arrow (same contract)
   demo.yaml              # made-up readings every 15 s
   dexcom.yaml            # Dexcom Share login + read every 60 s
   lang/en.yaml, es.yaml  # on-screen texts (substitutions t_*)
@@ -62,11 +62,12 @@ The main files only combine `packages`: hardware + ui + lang + data.
 
 ### Kids UI (`ui-kids.yaml`)
 
-For a young child who can't read numbers: the whole screen takes the zone color (red low, green in range, amber high), a face shows it and a gauge on the left shows the level. Design rules:
-- Faces are never sad or "bad": smile in range, "oh" when low, flat when high, asleep (eyes closed, "Zz", grey) without fresh data. Diabetes care advice is to avoid judging numbers as good or bad.
-- The eyes look up when rising and down when falling, so the trend reads without the arrow.
+For a young child who can't read numbers: the whole screen takes the zone color (red low, green in range, amber high), an emoji shows it and a gauge on the left shows the level. Design rules:
+- Faces are never sad or "bad": 😊 in range, 😮 when low, 😐 when high, 😴 (grey screen) without fresh data. Diabetes care advice is to avoid judging numbers as good or bad.
+- Emoji are Noto Emoji PNGs (Apache 2.0, credited in the README), downloaded at build time from a pinned tag (`v2.047`) and stored as RGB565 + alpha images. LVGL fonts are single-color, so color emoji can only be images.
+- The emoji sits on a white disc by day so its yellow doesn't blend with the amber zone. At night the disc is black with a ring in the zone color.
 - The number stays, small, for grown-ups. Stale data: grey, sleeping face, faded number and gauge, age in a red pill.
-- Dark ink on the colors (white on green/amber is unreadable). A tap toggles night mode: black background, the zone color moves to the face.
+- Dark ink on the colors (white on green/amber is unreadable). A tap toggles night mode: black background, the zone color moves to the ring.
 
 To check a UI change, run `make shots` (and `make shots LANG_SHOTS=es`) and look at `dev/shots/sheet.png`: the SDL display has `headless` and `snapshot.take` built in.
 

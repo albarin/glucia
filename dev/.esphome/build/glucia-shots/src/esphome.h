@@ -17,6 +17,7 @@
 #include "esphome/components/http_request/http_request_host.h"
 #include "esphome/components/http_request/http_request_idf.h"
 #include "esphome/components/http_request/httplib.h"
+#include "esphome/components/image/image.h"
 #include "esphome/components/json/json_util.h"
 #include "esphome/components/key_provider/key_provider.h"
 #include "esphome/components/logger/log_buffer.h"

@@ -1,6 +1,34 @@
 INFO ESPHome 2026.9.1
 INFO Reading configuration dev/screenshots.yaml...
-INFO Checking 1 remote file(s) for updates
+WARNING The 'image:' configuration format is deprecated and will be removed in ESPHome 2027.1.0. Images are now platforms of the 'image' component. Replace your 'image:' block with:
+
+image:
+  - platform: file
+    id: emoji_ok
+    file: https://raw.githubusercontent.com/googlefonts/noto-emoji/v2.047/png/512/emoji_u1f60a.png
+    type: RGB565
+    transparency: alpha_channel
+    resize: 156x156
+  - platform: file
+    id: emoji_low
+    file: https://raw.githubusercontent.com/googlefonts/noto-emoji/v2.047/png/512/emoji_u1f62e.png
+    type: RGB565
+    transparency: alpha_channel
+    resize: 156x156
+  - platform: file
+    id: emoji_high
+    file: https://raw.githubusercontent.com/googlefonts/noto-emoji/v2.047/png/512/emoji_u1f610.png
+    type: RGB565
+    transparency: alpha_channel
+    resize: 156x156
+  - platform: file
+    id: emoji_asleep
+    file: https://raw.githubusercontent.com/googlefonts/noto-emoji/v2.047/png/512/emoji_u1f634.png
+    type: RGB565
+    transparency: alpha_channel
+    resize: 156x156
+
+INFO Checking 5 remote file(s) for updates
 INFO Generating C++ source...
 INFO Detected timezone 'Europe/Madrid'
 INFO Compiling app... Build path: /Users/alba/Personal/glucia/dev/.esphome/build/glucia-shots
@@ -9,635 +37,46 @@ Processing [36m[1mglucia-shots[0m (platform: platformio/native)
 [0mDependency Graph
 [0m|-- ArduinoJson @ 7.4.3
 [0m|-- lvgl @ 9.5.0
-[0mCompiling .pioenvs/glucia-shots/src/esphome/components/display/display.o
-[0mCompiling .pioenvs/glucia-shots/src/esphome/components/display/display_buffer.o
-[0mCompiling .pioenvs/glucia-shots/src/esphome/components/display/rect.o
-[0mCompiling .pioenvs/glucia-shots/src/esphome/components/font/font.o
-[0mCompiling .pioenvs/glucia-shots/src/esphome/components/host/core.o
-[0mCompiling .pioenvs/glucia-shots/src/esphome/components/host/gpio.o
-[0mCompiling .pioenvs/glucia-shots/src/esphome/components/host/hal.o
-[0mCompiling .pioenvs/glucia-shots/src/esphome/components/host/helpers.o
-[0mCompiling .pioenvs/glucia-shots/src/esphome/components/host/preferences.o
-[0mCompiling .pioenvs/glucia-shots/src/esphome/components/http_request/http_request.o
-[0mCompiling .pioenvs/glucia-shots/src/esphome/components/http_request/http_request_host.o
-[0mCompiling .pioenvs/glucia-shots/src/esphome/components/json/json_util.o
-[0mCompiling .pioenvs/glucia-shots/src/esphome/components/key_provider/key_provider.o
-[0mCompiling .pioenvs/glucia-shots/src/esphome/components/logger/logger.o
-[0mCompiling .pioenvs/glucia-shots/src/esphome/components/logger/logger_host.o
-[0mCompiling .pioenvs/glucia-shots/src/esphome/components/logger/task_log_buffer_host.o
-[0mCompiling .pioenvs/glucia-shots/src/esphome/components/lvgl/lvgl_esphome.o
-[0mCompiling .pioenvs/glucia-shots/src/esphome/components/mdns/mdns_component.o
-[0mCompiling .pioenvs/glucia-shots/src/esphome/components/mdns/mdns_host.o
-[0mCompiling .pioenvs/glucia-shots/src/esphome/components/network/network_component.o
-[0mCompiling .pioenvs/glucia-shots/src/esphome/components/network/util.o
-[0mCompiling .pioenvs/glucia-shots/src/esphome/components/script/script.o
-[0mCompiling .pioenvs/glucia-shots/src/esphome/components/sdl/sdl_esphome.o
-[0mCompiling .pioenvs/glucia-shots/src/esphome/components/snapshot/snapshot.o
-[0mCompiling .pioenvs/glucia-shots/src/esphome/components/time/posix_tz.o
-[0mCompiling .pioenvs/glucia-shots/src/esphome/components/time/real_time_clock.o
-[0mCompiling .pioenvs/glucia-shots/src/esphome/components/watchdog/watchdog.o
-[0mCompiling .pioenvs/glucia-shots/src/esphome/core/alloc_helpers.o
-[0mCompiling .pioenvs/glucia-shots/src/esphome/core/application.o
 [0mCompiling .pioenvs/glucia-shots/src/esphome/core/build_info_data.o
-[0mCompiling .pioenvs/glucia-shots/src/esphome/core/color.o
-[0mCompiling .pioenvs/glucia-shots/src/esphome/core/component.o
-[0mCompiling .pioenvs/glucia-shots/src/esphome/core/component_iterator.o
-[0mCompiling .pioenvs/glucia-shots/src/esphome/core/controller_registry.o
-[0mCompiling .pioenvs/glucia-shots/src/esphome/core/entity_base.o
-[0mCompiling .pioenvs/glucia-shots/src/esphome/core/gpio.o
-[0mCompiling .pioenvs/glucia-shots/src/esphome/core/helpers.o
-[0mCompiling .pioenvs/glucia-shots/src/esphome/core/log.o
-[0mCompiling .pioenvs/glucia-shots/src/esphome/core/scheduler.o
-[0mCompiling .pioenvs/glucia-shots/src/esphome/core/time.o
-[0mCompiling .pioenvs/glucia-shots/src/esphome/core/util.o
-[33mIn file included from src/esphome/components/http_request/http_request_host.cpp:5:
-[0m[33msrc/esphome/components/http_request/httplib.h:9202:21: warning: 'X509_NAME_get_text_by_NID' is deprecated [-Wdeprecated-declarations]
-[0m[33m 9202 |     auto name_len = X509_NAME_get_text_by_NID(subject_name, NID_commonName, name, sizeof(name));
-[0m[33m      |                     ^
-[0m[33m/opt/homebrew/opt/openssl/include/openssl/x509.h:1041:1: note: 'X509_NAME_get_text_by_NID' has been explicitly marked deprecated here
-[0m[33m 1041 | OSSL_DEPRECATEDIN_4_0 int X509_NAME_get_text_by_NID(const X509_NAME *name,
-[0m[33m      | ^
-[0m[33m/opt/homebrew/opt/openssl/include/openssl/macros.h:205:31: note: expanded from macro 'OSSL_DEPRECATEDIN_4_0'
-[0m[33m  205 | #define OSSL_DEPRECATEDIN_4_0 OSSL_DEPRECATED(4.0)
-[0m[33m      |                               ^
-[0m[33m/opt/homebrew/opt/openssl/include/openssl/macros.h:67:47: note: expanded from macro 'OSSL_DEPRECATED'
-[0m[33m   67 | #define OSSL_DEPRECATED(since) __attribute__((deprecated))
-[0m[33m      |                                               ^
-[0mCompiling .pioenvs/glucia-shots/src/esphome/core/wake/wake_host.o
 [0mCompiling .pioenvs/glucia-shots/src/main.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/core/lv_group.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/core/lv_obj.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/core/lv_obj_class.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/core/lv_obj_draw.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/core/lv_obj_event.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/core/lv_obj_id_builtin.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/core/lv_obj_pos.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/core/lv_obj_property.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/core/lv_obj_scroll.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/core/lv_obj_style.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/core/lv_obj_style_gen.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/core/lv_obj_tree.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/core/lv_observer.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/core/lv_refr.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/debugging/monkey/lv_monkey.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/debugging/sysmon/lv_sysmon.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/debugging/test/lv_test_display.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/debugging/test/lv_test_fs.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/debugging/test/lv_test_helpers.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/debugging/test/lv_test_indev.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/debugging/test/lv_test_indev_gesture.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/debugging/test/lv_test_screenshot_compare.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/debugging/vg_lite_tvg/vg_lite_matrix.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/debugging/vg_lite_tvg/vg_lite_tvg.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/display/lv_display.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/convert/helium/lv_draw_buf_convert_helium.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/convert/lv_draw_buf_convert.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/convert/neon/lv_draw_buf_convert_neon.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/dma2d/lv_draw_dma2d.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/dma2d/lv_draw_dma2d_fill.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/dma2d/lv_draw_dma2d_img.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/espressif/ppa/lv_draw_ppa.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/espressif/ppa/lv_draw_ppa_buf.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/espressif/ppa/lv_draw_ppa_fill.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/espressif/ppa/lv_draw_ppa_img.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/eve/lv_draw_eve.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/eve/lv_draw_eve_arc.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/eve/lv_draw_eve_fill.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/eve/lv_draw_eve_image.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/eve/lv_draw_eve_letter.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/eve/lv_draw_eve_line.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/eve/lv_draw_eve_ram_g.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/eve/lv_draw_eve_triangle.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/eve/lv_eve.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/lv_draw.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/lv_draw_3d.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/lv_draw_arc.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/lv_draw_blur.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/lv_draw_buf.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/lv_draw_image.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/lv_draw_label.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/lv_draw_line.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/lv_draw_mask.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/lv_draw_rect.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/lv_draw_triangle.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/lv_draw_vector.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/lv_image_decoder.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/nanovg/lv_draw_nanovg.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/nanovg/lv_draw_nanovg_3d.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/nanovg/lv_draw_nanovg_arc.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/nanovg/lv_draw_nanovg_border.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/nanovg/lv_draw_nanovg_box_shadow.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/nanovg/lv_draw_nanovg_fill.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/nanovg/lv_draw_nanovg_grad.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/nanovg/lv_draw_nanovg_image.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/nanovg/lv_draw_nanovg_label.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/nanovg/lv_draw_nanovg_layer.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/nanovg/lv_draw_nanovg_line.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/nanovg/lv_draw_nanovg_mask_rect.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/nanovg/lv_draw_nanovg_triangle.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/nanovg/lv_draw_nanovg_vector.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/nanovg/lv_nanovg_fbo_cache.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/nanovg/lv_nanovg_image_cache.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/nanovg/lv_nanovg_utils.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/nema_gfx/lv_draw_nema_gfx.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/nema_gfx/lv_draw_nema_gfx_arc.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/nema_gfx/lv_draw_nema_gfx_border.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/nema_gfx/lv_draw_nema_gfx_fill.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/nema_gfx/lv_draw_nema_gfx_img.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/nema_gfx/lv_draw_nema_gfx_label.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/nema_gfx/lv_draw_nema_gfx_layer.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/nema_gfx/lv_draw_nema_gfx_line.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/nema_gfx/lv_draw_nema_gfx_stm32_hal.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/nema_gfx/lv_draw_nema_gfx_triangle.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/nema_gfx/lv_draw_nema_gfx_utils.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/nema_gfx/lv_draw_nema_gfx_vector.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/nema_gfx/lv_nema_gfx_path.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/nxp/g2d/lv_draw_buf_g2d.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/nxp/g2d/lv_draw_g2d.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/nxp/g2d/lv_draw_g2d_fill.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/nxp/g2d/lv_draw_g2d_img.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/nxp/g2d/lv_g2d_buf_map.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/nxp/g2d/lv_g2d_utils.o
-[0m[33m1 warning generated.
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/nxp/pxp/lv_draw_buf_pxp.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/nxp/pxp/lv_draw_pxp.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/nxp/pxp/lv_draw_pxp_fill.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/nxp/pxp/lv_draw_pxp_img.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/nxp/pxp/lv_draw_pxp_layer.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/nxp/pxp/lv_pxp_cfg.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/nxp/pxp/lv_pxp_osa.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/nxp/pxp/lv_pxp_utils.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/opengles/lv_draw_opengles.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/renesas/dave2d/lv_draw_dave2d.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/renesas/dave2d/lv_draw_dave2d_arc.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/renesas/dave2d/lv_draw_dave2d_border.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/renesas/dave2d/lv_draw_dave2d_fill.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/renesas/dave2d/lv_draw_dave2d_image.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/renesas/dave2d/lv_draw_dave2d_label.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/renesas/dave2d/lv_draw_dave2d_line.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/renesas/dave2d/lv_draw_dave2d_mask_rectangle.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/renesas/dave2d/lv_draw_dave2d_triangle.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/renesas/dave2d/lv_draw_dave2d_utils.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/sdl/lv_draw_sdl.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/snapshot/lv_snapshot.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/sw/blend/helium/lv_blend_helium.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/sw/blend/lv_draw_sw_blend.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/sw/blend/lv_draw_sw_blend_to_a8.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/sw/blend/lv_draw_sw_blend_to_al88.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/sw/blend/lv_draw_sw_blend_to_argb8888.o
-Compiling .pioenvs/glucia-shots/lib995/lvgl/draw/sw/blend/lv_draw_sw_blend_to_argb8888_premultiplied.o
-Compiling .pioenvs/glucia-shots/lib995/lvgl/draw/sw/blend/lv_draw_sw_blend_to_i1.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/sw/blend/lv_draw_sw_blend_to_l8.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/sw/blend/lv_draw_sw_blend_to_rgb565.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/sw/blend/lv_draw_sw_blend_to_rgb565_swapped.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/sw/blend/lv_draw_sw_blend_to_rgb888.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/sw/blend/neon/lv_draw_sw_blend_neon_to_rgb565.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/sw/blend/neon/lv_draw_sw_blend_neon_to_rgb888.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/sw/blend/riscv_v/lv_draw_sw_blend_riscv_v_to_rgb888.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/sw/lv_draw_sw.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/sw/lv_draw_sw_arc.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/sw/lv_draw_sw_blur.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/sw/lv_draw_sw_border.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/sw/lv_draw_sw_box_shadow.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/sw/lv_draw_sw_fill.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/sw/lv_draw_sw_grad.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/sw/lv_draw_sw_img.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/sw/lv_draw_sw_letter.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/sw/lv_draw_sw_line.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/sw/lv_draw_sw_mask.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/sw/lv_draw_sw_mask_rect.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/sw/lv_draw_sw_transform.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/sw/lv_draw_sw_triangle.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/sw/lv_draw_sw_utils.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/sw/lv_draw_sw_vector.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/vg_lite/lv_draw_buf_vg_lite.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/vg_lite/lv_draw_vg_lite.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/vg_lite/lv_draw_vg_lite_arc.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/vg_lite/lv_draw_vg_lite_border.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/vg_lite/lv_draw_vg_lite_box_shadow.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/vg_lite/lv_draw_vg_lite_fill.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/vg_lite/lv_draw_vg_lite_img.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/vg_lite/lv_draw_vg_lite_label.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/vg_lite/lv_draw_vg_lite_layer.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/vg_lite/lv_draw_vg_lite_line.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/vg_lite/lv_draw_vg_lite_mask_rect.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/vg_lite/lv_draw_vg_lite_triangle.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/vg_lite/lv_draw_vg_lite_vector.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/vg_lite/lv_vg_lite_bitmap_font_cache.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/vg_lite/lv_vg_lite_decoder.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/vg_lite/lv_vg_lite_grad.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/vg_lite/lv_vg_lite_math.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/vg_lite/lv_vg_lite_path.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/vg_lite/lv_vg_lite_pending.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/vg_lite/lv_vg_lite_stroke.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/draw/vg_lite/lv_vg_lite_utils.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/drivers/display/drm/lv_linux_drm.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/drivers/display/drm/lv_linux_drm_common.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/drivers/display/drm/lv_linux_drm_egl.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/drivers/display/fb/lv_linux_fbdev.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/drivers/display/ft81x/lv_ft81x.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/drivers/display/ili9341/lv_ili9341.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/drivers/display/lcd/lv_lcd_generic_mipi.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/drivers/display/lovyan_gfx/lv_lovyan_gfx.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/drivers/display/nv3007/lv_nv3007.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/drivers/display/nxp_elcdif/lv_nxp_elcdif.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/drivers/display/renesas_glcdc/lv_renesas_glcdc.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/drivers/display/st7735/lv_st7735.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/drivers/display/st7789/lv_st7789.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/drivers/display/st7796/lv_st7796.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/drivers/display/st_ltdc/lv_st_ltdc.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/drivers/display/tft_espi/lv_tft_espi.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/drivers/draw/eve/lv_draw_eve_display.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/drivers/evdev/lv_evdev.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/drivers/libinput/lv_libinput.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/drivers/libinput/lv_xkb.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/drivers/nuttx/lv_nuttx_cache.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/drivers/nuttx/lv_nuttx_entry.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/drivers/nuttx/lv_nuttx_fbdev.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/drivers/nuttx/lv_nuttx_image_cache.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/drivers/nuttx/lv_nuttx_lcd.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/drivers/nuttx/lv_nuttx_libuv.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/drivers/nuttx/lv_nuttx_mouse.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/drivers/nuttx/lv_nuttx_profiler.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/drivers/nuttx/lv_nuttx_touchscreen.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/drivers/opengles/assets/lv_opengles_shader.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/drivers/opengles/glad/src/egl.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/drivers/opengles/glad/src/gl.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/drivers/opengles/glad/src/gles2.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/drivers/opengles/lv_opengles_debug.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/drivers/opengles/lv_opengles_driver.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/drivers/opengles/lv_opengles_egl.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/drivers/opengles/lv_opengles_glfw.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/drivers/opengles/lv_opengles_texture.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/drivers/opengles/opengl_shader/lv_opengl_shader_manager.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/drivers/opengles/opengl_shader/lv_opengl_shader_program.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/drivers/qnx/lv_qnx.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/drivers/sdl/lv_sdl_egl.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/drivers/sdl/lv_sdl_keyboard.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/drivers/sdl/lv_sdl_mouse.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/drivers/sdl/lv_sdl_mousewheel.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/drivers/sdl/lv_sdl_sw.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/drivers/sdl/lv_sdl_texture.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/drivers/sdl/lv_sdl_window.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/drivers/uefi/lv_uefi_context.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/drivers/uefi/lv_uefi_display.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/drivers/uefi/lv_uefi_indev_keyboard.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/drivers/uefi/lv_uefi_indev_pointer.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/drivers/uefi/lv_uefi_indev_touch.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/drivers/uefi/lv_uefi_private.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/drivers/wayland/lv_wayland.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/drivers/wayland/lv_wl_egl_backend.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/drivers/wayland/lv_wl_g2d_backend.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/drivers/wayland/lv_wl_keyboard.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/drivers/wayland/lv_wl_pointer.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/drivers/wayland/lv_wl_seat.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/drivers/wayland/lv_wl_shm_backend.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/drivers/wayland/lv_wl_touch.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/drivers/wayland/lv_wl_window.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/drivers/wayland/lv_wl_xdg_shell.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/drivers/windows/lv_windows_context.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/drivers/windows/lv_windows_display.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/drivers/windows/lv_windows_input.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/drivers/x11/lv_x11_display.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/drivers/x11/lv_x11_input.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/font/binfont_loader/lv_binfont_loader.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/font/fmt_txt/lv_font_fmt_txt.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/font/font_manager/lv_font_manager.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/font/font_manager/lv_font_manager_recycle.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/font/imgfont/lv_imgfont.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/font/lv_font.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/font/lv_font_dejavu_16_persian_hebrew.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/font/lv_font_montserrat_10.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/font/lv_font_montserrat_12.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/font/lv_font_montserrat_14.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/font/lv_font_montserrat_14_aligned.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/font/lv_font_montserrat_16.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/font/lv_font_montserrat_18.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/font/lv_font_montserrat_20.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/font/lv_font_montserrat_22.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/font/lv_font_montserrat_24.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/font/lv_font_montserrat_26.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/font/lv_font_montserrat_28.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/font/lv_font_montserrat_28_compressed.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/font/lv_font_montserrat_30.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/font/lv_font_montserrat_32.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/font/lv_font_montserrat_34.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/font/lv_font_montserrat_36.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/font/lv_font_montserrat_38.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/font/lv_font_montserrat_40.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/font/lv_font_montserrat_42.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/font/lv_font_montserrat_44.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/font/lv_font_montserrat_46.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/font/lv_font_montserrat_48.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/font/lv_font_montserrat_8.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/font/lv_font_source_han_sans_sc_14_cjk.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/font/lv_font_source_han_sans_sc_16_cjk.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/font/lv_font_unscii_16.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/font/lv_font_unscii_8.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/indev/lv_gridnav.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/indev/lv_indev.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/indev/lv_indev_gesture.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/indev/lv_indev_scroll.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/layouts/flex/lv_flex.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/layouts/grid/lv_grid.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/layouts/lv_layout.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/libs/FT800-FT813/EVE_commands.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/libs/FT800-FT813/EVE_supplemental.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/libs/barcode/code128.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/libs/barcode/lv_barcode.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/libs/bin_decoder/lv_bin_decoder.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/libs/bmp/lv_bmp.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/libs/ffmpeg/lv_ffmpeg.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/libs/freetype/lv_freetype.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/libs/freetype/lv_freetype_glyph.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/libs/freetype/lv_freetype_image.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/libs/freetype/lv_freetype_outline.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/libs/freetype/lv_ftsystem.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/libs/frogfs/src/decomp_raw.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/libs/frogfs/src/frogfs.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/libs/fsdrv/lv_fs_arduino_esp_littlefs.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/libs/fsdrv/lv_fs_arduino_sd.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/libs/fsdrv/lv_fs_cbfs.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/libs/fsdrv/lv_fs_fatfs.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/libs/fsdrv/lv_fs_frogfs.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/libs/fsdrv/lv_fs_littlefs.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/libs/fsdrv/lv_fs_memfs.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/libs/fsdrv/lv_fs_posix.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/libs/fsdrv/lv_fs_stdio.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/libs/fsdrv/lv_fs_uefi.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/libs/fsdrv/lv_fs_win32.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/libs/gif/gif.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/libs/gltf/gltf_data/lv_gltf_data.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/libs/gltf/gltf_data/lv_gltf_data_animations.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/libs/gltf/gltf_data/lv_gltf_data_cache.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/libs/gltf/gltf_data/lv_gltf_data_injest.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/libs/gltf/gltf_data/lv_gltf_data_mesh.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/libs/gltf/gltf_data/lv_gltf_data_primitive.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/libs/gltf/gltf_data/lv_gltf_data_shader.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/libs/gltf/gltf_data/lv_gltf_data_skin.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/libs/gltf/gltf_data/lv_gltf_data_texture.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/libs/gltf/gltf_data/lv_gltf_model_node.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/libs/gltf/gltf_data/lv_gltf_uniform_locations.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/libs/gltf/gltf_environment/lv_gltf_ibl_sampler.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/libs/gltf/gltf_view/assets/chromatic.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/libs/gltf/gltf_view/assets/lv_gltf_view_shader.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/libs/gltf/gltf_view/lv_gltf_view.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/libs/gltf/gltf_view/lv_gltf_view_render.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/libs/gltf/gltf_view/lv_gltf_view_shader.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/libs/gltf/math/lv_3dmath.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/libs/gltf/math/lv_gltf_math.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/libs/gstreamer/lv_gstreamer.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/libs/libjpeg_turbo/lv_libjpeg_turbo.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/libs/libpng/lv_libpng.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/libs/libwebp/lv_libwebp.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/libs/lodepng/lodepng.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/libs/lodepng/lv_lodepng.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/libs/lz4/lz4.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/libs/nanovg/nanovg.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/libs/qrcode/lv_qrcode.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/libs/qrcode/qrcodegen.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/libs/rle/lv_rle.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/libs/rlottie/lv_rlottie.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/libs/svg/lv_svg.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/libs/svg/lv_svg_decoder.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/libs/svg/lv_svg_parser.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/libs/svg/lv_svg_render.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/libs/svg/lv_svg_token.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/libs/thorvg/tvgAccessor.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/libs/thorvg/tvgAnimation.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/libs/thorvg/tvgCanvas.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/libs/thorvg/tvgCapi.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/libs/thorvg/tvgCompressor.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/libs/thorvg/tvgFill.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/libs/thorvg/tvgGlCanvas.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/libs/thorvg/tvgInitializer.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/libs/thorvg/tvgLoader.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/libs/thorvg/tvgLottieAnimation.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/libs/thorvg/tvgLottieBuilder.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/libs/thorvg/tvgLottieExpressions.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/libs/thorvg/tvgLottieInterpolator.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/libs/thorvg/tvgLottieLoader.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/libs/thorvg/tvgLottieModel.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/libs/thorvg/tvgLottieModifier.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/libs/thorvg/tvgLottieParser.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/libs/thorvg/tvgLottieParserHandler.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/libs/thorvg/tvgMath.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/libs/thorvg/tvgPaint.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/libs/thorvg/tvgPicture.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/libs/thorvg/tvgRawLoader.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/libs/thorvg/tvgRender.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/libs/thorvg/tvgSaver.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/libs/thorvg/tvgScene.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/libs/thorvg/tvgShape.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/libs/thorvg/tvgStr.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/libs/thorvg/tvgSvgCssStyle.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/libs/thorvg/tvgSvgLoader.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/libs/thorvg/tvgSvgPath.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/libs/thorvg/tvgSvgSceneBuilder.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/libs/thorvg/tvgSvgUtil.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/libs/thorvg/tvgSwCanvas.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/libs/thorvg/tvgSwFill.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/libs/thorvg/tvgSwImage.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/libs/thorvg/tvgSwMath.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/libs/thorvg/tvgSwMemPool.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/libs/thorvg/tvgSwPostEffect.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/libs/thorvg/tvgSwRaster.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/libs/thorvg/tvgSwRenderer.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/libs/thorvg/tvgSwRle.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/libs/thorvg/tvgSwShape.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/libs/thorvg/tvgSwStroke.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/libs/thorvg/tvgTaskScheduler.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/libs/thorvg/tvgText.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/libs/thorvg/tvgWgCanvas.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/libs/thorvg/tvgXmlParser.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/libs/tiny_ttf/lv_tiny_ttf.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/libs/tjpgd/lv_tjpgd.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/libs/tjpgd/tjpgd.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/libs/vg_lite_driver/VGLite/vg_lite.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/libs/vg_lite_driver/VGLite/vg_lite_image.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/libs/vg_lite_driver/VGLite/vg_lite_matrix.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/libs/vg_lite_driver/VGLite/vg_lite_path.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/libs/vg_lite_driver/VGLite/vg_lite_stroke.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/libs/vg_lite_driver/VGLiteKernel/vg_lite_kernel.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/libs/vg_lite_driver/lv_vg_lite_hal/lv_vg_lite_hal.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/libs/vg_lite_driver/lv_vg_lite_hal/vg_lite_os.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/lv_init.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/misc/cache/class/lv_cache_lru_ll.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/misc/cache/class/lv_cache_lru_rb.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/misc/cache/class/lv_cache_sc_da.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/misc/cache/instance/lv_image_cache.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/misc/cache/instance/lv_image_header_cache.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/misc/cache/lv_cache.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/misc/cache/lv_cache_entry.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/misc/lv_anim.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/misc/lv_anim_timeline.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/misc/lv_area.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/misc/lv_array.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/misc/lv_async.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/misc/lv_bidi.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/misc/lv_circle_buf.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/misc/lv_color.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/misc/lv_color_op.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/misc/lv_event.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/misc/lv_fs.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/misc/lv_grad.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/misc/lv_iter.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/misc/lv_ll.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/misc/lv_log.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/misc/lv_lru.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/misc/lv_math.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/misc/lv_matrix.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/misc/lv_palette.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/misc/lv_pending.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/misc/lv_profiler_builtin.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/misc/lv_profiler_builtin_posix.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/misc/lv_rb.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/misc/lv_style.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/misc/lv_style_gen.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/misc/lv_templ.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/misc/lv_text.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/misc/lv_text_ap.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/misc/lv_timer.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/misc/lv_tree.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/misc/lv_utils.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/osal/lv_cmsis_rtos2.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/osal/lv_freertos.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/osal/lv_linux.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/osal/lv_mqx.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/osal/lv_os.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/osal/lv_os_none.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/osal/lv_pthread.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/osal/lv_rtthread.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/osal/lv_sdl2.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/osal/lv_windows.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/others/file_explorer/lv_file_explorer.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/others/fragment/lv_fragment.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/others/fragment/lv_fragment_manager.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/others/translation/lv_translation.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/stdlib/builtin/lv_mem_core_builtin.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/stdlib/builtin/lv_sprintf_builtin.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/stdlib/builtin/lv_string_builtin.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/stdlib/builtin/lv_tlsf.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/stdlib/clib/lv_mem_core_clib.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/stdlib/clib/lv_sprintf_clib.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/stdlib/clib/lv_string_clib.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/stdlib/lv_mem.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/stdlib/micropython/lv_mem_core_micropython.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/stdlib/rtthread/lv_mem_core_rtthread.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/stdlib/rtthread/lv_sprintf_rtthread.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/stdlib/rtthread/lv_string_rtthread.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/stdlib/uefi/lv_mem_core_uefi.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/themes/default/lv_theme_default.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/themes/lv_theme.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/themes/mono/lv_theme_mono.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/themes/simple/lv_theme_simple.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/tick/lv_tick.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/widgets/3dtexture/lv_3dtexture.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/widgets/animimage/lv_animimage.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/widgets/arc/lv_arc.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/widgets/arclabel/lv_arclabel.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/widgets/bar/lv_bar.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/widgets/button/lv_button.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/widgets/buttonmatrix/lv_buttonmatrix.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/widgets/calendar/lv_calendar.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/widgets/calendar/lv_calendar_chinese.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/widgets/calendar/lv_calendar_header_arrow.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/widgets/calendar/lv_calendar_header_dropdown.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/widgets/canvas/lv_canvas.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/widgets/chart/lv_chart.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/widgets/checkbox/lv_checkbox.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/widgets/dropdown/lv_dropdown.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/widgets/gif/lv_gif.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/widgets/image/lv_image.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/widgets/imagebutton/lv_imagebutton.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/widgets/ime/lv_ime_pinyin.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/widgets/keyboard/lv_keyboard.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/widgets/label/lv_label.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/widgets/led/lv_led.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/widgets/line/lv_line.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/widgets/list/lv_list.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/widgets/lottie/lv_lottie.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/widgets/menu/lv_menu.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/widgets/msgbox/lv_msgbox.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/widgets/objx_templ/lv_objx_templ.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/widgets/property/lv_animimage_properties.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/widgets/property/lv_arc_properties.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/widgets/property/lv_bar_properties.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/widgets/property/lv_buttonmatrix_properties.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/widgets/property/lv_chart_properties.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/widgets/property/lv_checkbox_properties.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/widgets/property/lv_dropdown_properties.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/widgets/property/lv_image_properties.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/widgets/property/lv_keyboard_properties.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/widgets/property/lv_label_properties.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/widgets/property/lv_led_properties.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/widgets/property/lv_line_properties.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/widgets/property/lv_menu_properties.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/widgets/property/lv_obj_properties.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/widgets/property/lv_roller_properties.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/widgets/property/lv_scale_properties.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/widgets/property/lv_slider_properties.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/widgets/property/lv_span_properties.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/widgets/property/lv_spinbox_properties.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/widgets/property/lv_spinner_properties.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/widgets/property/lv_style_properties.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/widgets/property/lv_switch_properties.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/widgets/property/lv_table_properties.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/widgets/property/lv_tabview_properties.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/widgets/property/lv_textarea_properties.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/widgets/roller/lv_roller.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/widgets/scale/lv_scale.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/widgets/slider/lv_slider.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/widgets/span/lv_span.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/widgets/spinbox/lv_spinbox.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/widgets/spinner/lv_spinner.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/widgets/switch/lv_switch.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/widgets/table/lv_table.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/widgets/tabview/lv_tabview.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/widgets/textarea/lv_textarea.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/widgets/tileview/lv_tileview.o
-[0mCompiling .pioenvs/glucia-shots/lib995/lvgl/widgets/win/lv_win.o
-[0mArchiving .pioenvs/glucia-shots/lib995/liblvgl.a
-[0mIndexing .pioenvs/glucia-shots/lib995/liblvgl.a
 [0mLinking .pioenvs/glucia-shots/program
-[0m========================= [[32m[1mSUCCESS[0m] Took 5.02 seconds =========================[0m
-[0m
-INFO Build Info: config_hash=0x32ba9756 build_time_str=2026-10-12 16:15:41 +0200
+[0m========================= [[32m[1mSUCCESS[0m] Took 1.27 seconds =========================[0m
+INFO Build Info: config_hash=0x95101142 build_time_str=2026-10-12 16:21:41 +0200
 INFO Successfully compiled program to path '/Users/alba/Personal/glucia/dev/.esphome/build/glucia-shots/.pioenvs/glucia-shots/program'
-[16:15:47][0;32m[I][app:060]: Running through setup()[0m
-[16:15:47][0;36m[D][lvgl:774]: Setting resolution to 480 x 320 (rotation 0)[0m
-[16:15:47][0;32m[I][app:117]: setup() finished successfully![0m
-[16:15:47][0;32m[I][app:151]: ESPHome version 2026.9.1 compiled on 2026-10-12 16:15:41 +0200[0m
-[16:15:47][0;35m[C][logger:221]: Logger:
+[16:21:43][0;32m[I][app:060]: Running through setup()[0m
+[16:21:43][0;36m[D][lvgl:774]: Setting resolution to 480 x 320 (rotation 0)[0m
+[16:21:43][0;32m[I][app:117]: setup() finished successfully![0m
+[16:21:43][0;32m[I][app:151]: ESPHome version 2026.9.1 compiled on 2026-10-12 16:21:41 +0200[0m
+[16:21:43][0;35m[C][logger:221]: Logger:
   Max Level: DEBUG
   Initial Level: DEBUG[0m
-[16:15:47][0;35m[C][logger:230]:   Task Log Buffer Slots: 64[0m
-[16:15:47][0;35m[C][sdl:043]: SDL
+[16:21:43][0;35m[C][logger:230]:   Task Log Buffer Slots: 64[0m
+[16:21:43][0;35m[C][sdl:043]: SDL
   Rotations: 0 °
   Dimensions: 480px x 320px[0m
-[16:15:47][0;35m[C][time:049]: Timezone: UTC+1:00 (DST UTC+2:00)[0m
-[16:15:47][0;35m[C][time:056]: Current time: 2026-10-12 16:15:47[0m
-[16:15:47][0;35m[C][lvgl:171]: LVGL:
+[16:21:43][0;35m[C][time:049]: Timezone: UTC+1:00 (DST UTC+2:00)[0m
+[16:21:43][0;35m[C][time:056]: Current time: 2026-10-12 16:21:43[0m
+[16:21:43][0;35m[C][lvgl:171]: LVGL:
   Display width/height: 480 x 320
   Buffer size: 100%
   Rotation: 0
   Draw rounding: 2[0m
-[16:15:47][0;35m[C][http_request:018]: HTTP Request:
+[16:21:43][0;35m[C][http_request:018]: HTTP Request:
   Timeout: 10000ms
   User-Agent: ESPHome/2026.9.1 (https://esphome.io)
   Follow redirects: YES
   Redirect limit: 3[0m
-[16:15:47][0;35m[C][mdns:262]: mDNS:
+[16:21:43][0;35m[C][mdns:262]: mDNS:
   Hostname: glucia-shots[0m
-[16:15:48][0;32m[I][snapshot:189]: Snapshot written to /Users/alba/Personal/glucia/dev/.esphome/snapshots/glucia-shots/1-in-range.bmp[0m
-[16:15:49][0;32m[I][snapshot:189]: Snapshot written to /Users/alba/Personal/glucia/dev/.esphome/snapshots/glucia-shots/2-in-range-rising.bmp[0m
-[16:15:49][0;32m[I][snapshot:189]: Snapshot written to /Users/alba/Personal/glucia/dev/.esphome/snapshots/glucia-shots/3-low-falling.bmp[0m
-[16:15:49][0;32m[I][snapshot:189]: Snapshot written to /Users/alba/Personal/glucia/dev/.esphome/snapshots/glucia-shots/4-very-low.bmp[0m
-[16:15:50][0;32m[I][snapshot:189]: Snapshot written to /Users/alba/Personal/glucia/dev/.esphome/snapshots/glucia-shots/5-high-rising.bmp[0m
-[16:15:50][0;32m[I][snapshot:189]: Snapshot written to /Users/alba/Personal/glucia/dev/.esphome/snapshots/glucia-shots/6-very-high.bmp[0m
-[16:15:50][0;32m[I][snapshot:189]: Snapshot written to /Users/alba/Personal/glucia/dev/.esphome/snapshots/glucia-shots/7-stale.bmp[0m
-[16:15:50][0;32m[I][snapshot:189]: Snapshot written to /Users/alba/Personal/glucia/dev/.esphome/snapshots/glucia-shots/8-no-data.bmp[0m
-[16:15:51][0;32m[I][snapshot:189]: Snapshot written to /Users/alba/Personal/glucia/dev/.esphome/snapshots/glucia-shots/9-night-in-range.bmp[0m
-[16:15:51][0;32m[I][snapshot:189]: Snapshot written to /Users/alba/Personal/glucia/dev/.esphome/snapshots/glucia-shots/a-night-low.bmp[0m
-[16:15:51][0;32m[I][snapshot:189]: Snapshot written to /Users/alba/Personal/glucia/dev/.esphome/snapshots/glucia-shots/b-night-high.bmp[0m
-[16:15:52][0;32m[I][snapshot:189]: Snapshot written to /Users/alba/Personal/glucia/dev/.esphome/snapshots/glucia-shots/c-night-stale.bmp[0m
+[16:21:44][0;32m[I][snapshot:189]: Snapshot written to /Users/alba/Personal/glucia/dev/.esphome/snapshots/glucia-shots/1-in-range.bmp[0m
+[16:21:45][0;32m[I][snapshot:189]: Snapshot written to /Users/alba/Personal/glucia/dev/.esphome/snapshots/glucia-shots/2-in-range-rising.bmp[0m
+[16:21:45][0;32m[I][snapshot:189]: Snapshot written to /Users/alba/Personal/glucia/dev/.esphome/snapshots/glucia-shots/3-low-falling.bmp[0m
+[16:21:45][0;32m[I][snapshot:189]: Snapshot written to /Users/alba/Personal/glucia/dev/.esphome/snapshots/glucia-shots/4-very-low.bmp[0m
+[16:21:46][0;32m[I][snapshot:189]: Snapshot written to /Users/alba/Personal/glucia/dev/.esphome/snapshots/glucia-shots/5-high-rising.bmp[0m
+[16:21:46][0;32m[I][snapshot:189]: Snapshot written to /Users/alba/Personal/glucia/dev/.esphome/snapshots/glucia-shots/6-very-high.bmp[0m
+[16:21:46][0;32m[I][snapshot:189]: Snapshot written to /Users/alba/Personal/glucia/dev/.esphome/snapshots/glucia-shots/7-stale.bmp[0m
+[16:21:46][0;32m[I][snapshot:189]: Snapshot written to /Users/alba/Personal/glucia/dev/.esphome/snapshots/glucia-shots/8-no-data.bmp[0m
+[16:21:47][0;32m[I][snapshot:189]: Snapshot written to /Users/alba/Personal/glucia/dev/.esphome/snapshots/glucia-shots/9-night-in-range.bmp[0m
+[16:21:47][0;32m[I][snapshot:189]: Snapshot written to /Users/alba/Personal/glucia/dev/.esphome/snapshots/glucia-shots/a-night-low.bmp[0m
+[16:21:47][0;32m[I][snapshot:189]: Snapshot written to /Users/alba/Personal/glucia/dev/.esphome/snapshots/glucia-shots/b-night-high.bmp[0m
+[16:21:48][0;32m[I][snapshot:189]: Snapshot written to /Users/alba/Personal/glucia/dev/.esphome/snapshots/glucia-shots/c-night-stale.bmp[0m

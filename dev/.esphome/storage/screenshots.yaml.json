@@ -13,10 +13,12 @@
   "loaded_integrations": [
     "display",
     "esphome",
+    "file",
     "font",
     "globals",
     "host",
     "http_request",
+    "image",
     "json",
     "key_provider",
     "logger",
@@ -32,6 +34,7 @@
   ],
   "loaded_platforms": [
     "display/sdl",
+    "image/file",
     "time/host"
   ],
   "no_mdns": false,

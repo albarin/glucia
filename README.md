@@ -45,3 +45,7 @@ On the simulator, tap the screen to invert the colors and long-press it to pause
 After that, the board installs new releases of this repo by itself (every 6 hours). They are published with `make release VERSION=v1.2` (it pushes a tag), and the release binaries are built with this repo's own passwords: if you fork it, set the `AP_PASSWORD` and `OTA_PASSWORD` secrets and point `update: source:` in `hardware/guition.yaml` to your fork.
 
 The on-screen language is set in `guition.yaml` (`common/lang/es.yaml` or `en.yaml`).
+
+## Credits
+
+The kids UI uses emoji from [Noto Emoji](https://github.com/googlefonts/noto-emoji) by Google, under the Apache License 2.0.
