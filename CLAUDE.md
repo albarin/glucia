@@ -4,8 +4,6 @@ El aparato se llama `glucia` (hostname `glucia.local`) y su WiFi de rescate, `Gl
 
 Pantalla de sobremesa que muestra en grande la glucosa de un sensor Dexcom: número, flecha de tendencia, cambio respecto a la lectura anterior, cuenta atrás hasta la próxima lectura y las 8 últimas lecturas en barras. Inspirada en https://migluvi.com.
 
-Tutorial completo con todo el código explicado: https://claude.ai/code/artifact/3ac6b8ec-e27f-43b9-afdf-cdf8565ab950
-
 ## Para quién y restricciones
 
 - Es para una persona que vive lejos y **no tiene Home Assistant** ni ningún servidor. El aparato tiene que funcionar solo, con su WiFi, sin depender de nada más.
@@ -120,7 +118,6 @@ Red de seguridad: `safe_mode` + rollback del ESP-IDF (activo por defecto). Si el
 3. Control de brillo desde la pantalla (la `light` `brillo` ya existe en `hardware/guition.yaml`), opción de mmol/L.
 4. Probar con las credenciales reales de Dexcom cuando las haya.
 5. Unas semanas funcionando en casa, provocando fallos, antes de enviarla.
-6. Actualizar el tutorial (enlace arriba): aún habla de `hola.yaml`, del nombre `glucosa` y tiene el código antiguo de `pintar` y del login de Dexcom.
 
 ## Trampas encontradas
 
