@@ -15,12 +15,23 @@ Guition **JC3248W535C** (ESP32-S3, 3.5" 480x320 touchscreen). There is also a si
 You need Python 3.13 from Homebrew and, for the simulator, SDL2 (`brew install sdl2`).
 
 ```sh
-make setup        # creates .venv with ESPHome and secrets.yaml (then fill in its values)
-make sim          # simulator with made-up data
-make sim-dexcom   # simulator with your Dexcom account (from secrets.yaml)
-make flash        # build and install on the board
-make              # list every command
+make setup   # creates .venv with ESPHome and secrets.yaml (then fill in its values)
+make sim     # simulator with made-up data
 ```
+
+| Command | What it does |
+|---|---|
+| `make` | List every command |
+| `make setup` | Create `.venv` with ESPHome, and `secrets.yaml` from the template if missing |
+| `make sim` | Simulator with made-up data |
+| `make sim-dexcom` | Simulator with your Dexcom account (credentials from `secrets.yaml`) |
+| `make sim-reset` | Forget what the simulators stored (e.g. old Dexcom credentials) |
+| `make build` | Build the board firmware |
+| `make flash` | Build and install on the board (over USB or WiFi, it asks) |
+| `make logs` | Show the board logs over USB |
+| `make check` | Build everything |
+| `make release VERSION=v1.2` | Publish a firmware version (only from a clean `main` in sync with GitHub) |
+| `make clean` | Delete build files |
 
 On the simulator, tap the screen to invert the colors and long-press it to pause the demo.
 
