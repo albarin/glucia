@@ -1084,6 +1084,10 @@ void setup() {
   //           lv_obj_t *fc = (lv_obj_t *) id(face);
   //           set_fill(fc, night ? 0x000000 : 0xFFFFFF);
   //           int ring = night ? 14 : 0;
+  //            At night the disc shrinks so the ring hugs the emoji (visible face ~140 px of
+  //            the 156 px image): inner diameter 136, the emoji edge covers the seam.
+  //           int disc = night ? 136 + 2 * ring : 200;
+  //           set_box(fc, 204 - disc / 2, 156 - disc / 2, disc, disc);
   //           if (lv_obj_get_style_border_width(fc, LV_PART_MAIN) != ring) lv_obj_set_style_border_width(fc, ring, 0);
   //           if (!lv_color_eq(lv_obj_get_style_border_color(fc, LV_PART_MAIN), lv_color_hex(face_color)))
   //             lv_obj_set_style_border_color(fc, lv_color_hex(face_color), 0);
@@ -1495,6 +1499,10 @@ void setup() {
       lv_obj_t *fc = (lv_obj_t *) face;
       set_fill(fc, night ? 0x000000 : 0xFFFFFF);
       int ring = night ? 14 : 0;
+       
+       
+      int disc = night ? 136 + 2 * ring : 200;
+      set_box(fc, 204 - disc / 2, 156 - disc / 2, disc, disc);
       if (lv_obj_get_style_border_width(fc, LV_PART_MAIN) != ring) lv_obj_set_style_border_width(fc, ring, 0);
       if (!lv_color_eq(lv_obj_get_style_border_color(fc, LV_PART_MAIN), lv_color_hex(face_color)))
         lv_obj_set_style_border_color(fc, lv_color_hex(face_color), 0);
