@@ -363,7 +363,7 @@ void setup() {
   //             age_s: 0
   //             id: set_case
   //             previous: 0
-  //             status: Dexcom no tiene lecturas recientes
+  //             status: No recent Dexcom readings
   //             trend_now: 0
   //             value: 0
   //           type_id: script_scriptexecuteaction_id_8
@@ -468,23 +468,23 @@ void setup() {
   //   headless: 'true'
   //   high_limit: '180'
   //   low_limit: '70'
-  //   shots_lang: es
-  //   t_connecting: Conectando...
-  //   t_demo: Modo demo
-  //   t_demo_paused: Demo en pausa
-  //   t_dexcom_bad_credentials: 'Dexcom: revisa usuario y contraseña'
-  //   t_dexcom_bad_response: 'Dexcom: respuesta rara'
+  //   shots_lang: en
+  //   t_connecting: Connecting...
+  //   t_demo: Demo mode
+  //   t_demo_paused: Demo paused
+  //   t_dexcom_bad_credentials: 'Dexcom: check username and password'
+  //   t_dexcom_bad_response: 'Dexcom: unexpected response'
   //   t_dexcom_error: 'Dexcom: error %d'
-  //   t_dexcom_login_error: 'Dexcom: error al entrar'
-  //   t_dexcom_missing: 'Falta Dexcom: entra en glucia.local'
-  //   t_dexcom_no_readings: Dexcom no tiene lecturas recientes
-  //   t_dexcom_unreachable: Sin conexión con Dexcom
-  //   t_minutes_ago: hace %d min
-  //   t_no_new_data: Sin datos nuevos
-  //   t_no_wifi: 'Sin WiFi: conéctate a la red Glucia'
-  //   t_now: ahora
-  //   t_seconds_ago: hace %d s
-  //   t_starting: Arrancando...
+  //   t_dexcom_login_error: 'Dexcom: sign-in error'
+  //   t_dexcom_missing: Set up Dexcom at glucia.local
+  //   t_dexcom_no_readings: No recent Dexcom readings
+  //   t_dexcom_unreachable: Can't reach Dexcom
+  //   t_minutes_ago: '%d min ago'
+  //   t_no_new_data: No new data
+  //   t_no_wifi: 'No WiFi: join the Glucia network'
+  //   t_now: now
+  //   t_seconds_ago: '%d s ago'
+  //   t_starting: Starting...
   // host:
   //   mac_address: 98:35:69:AB:F6:79
   // time.host:
@@ -867,7 +867,7 @@ void setup() {
   //                     y: 260
   //                 - label:
   //                     id: lbl_status
-  //                     text: Arrancando...
+  //                     text: Starting...
   //                     text_color: 2042167
   //                     x: 92
   //                     y: 10
@@ -1083,7 +1083,7 @@ void setup() {
   lv_obj_set_style_text_color(lbl_status, lv_color_make(31, 41, 55), LV_PART_MAIN);
   lv_obj_set_style_x(lbl_status, 92, LV_PART_MAIN);
   lv_obj_set_style_y(lbl_status, 10, LV_PART_MAIN);
-  lv_label_set_text(lbl_status, "Arrancando...");
+  lv_label_set_text(lbl_status, "Starting...");
   #line 200 "dev/../common/ui-kids.yaml"
    lbl_wifi = lv_label_create(bg);
   lv_obj_set_style_align(lbl_wifi, LV_ALIGN_TOP_RIGHT, LV_PART_MAIN);
@@ -1211,8 +1211,8 @@ void setup() {
   //           std::string age_text = "";
   //           if (age >= 0) {
   //             int min = age / 60;
-  //             if (min >= 1) age_text = format("hace %d min", min);
-  //             else age_text = stale ? format("hace %d s", (int) age) : "ahora";
+  //             if (min >= 1) age_text = format("%d min ago", min);
+  //             else age_text = stale ? format("%d s ago", (int) age) : "now";
   //           }
   //           lv_obj_t *age_lbl = (lv_obj_t *) id(lbl_age);
   //           set_text(age_lbl, age_text);
@@ -1228,7 +1228,7 @@ void setup() {
   //           set_ink(age_lbl, stale ? 0xFFFFFF : INK);
   //   
   //           std::string status = id(status_text);
-  //           if (status.empty() && stale) status = "Sin datos nuevos";
+  //           if (status.empty() && stale) status = "No new data";
   //           set_text((lv_obj_t *) id(lbl_status), status);
   //   
   //           lv_obj_t *wifi = (lv_obj_t *) id(lbl_wifi);
@@ -1422,7 +1422,7 @@ void setup() {
     }, []() -> int {
       return 0;
     }, []() -> std::string {
-      return "Dexcom no tiene lecturas recientes";
+      return "No recent Dexcom readings";
   });
   new(delayaction_id_9) DelayAction<>();
   delayaction_id_9->set_delay([]() -> uint32_t {
@@ -1628,8 +1628,8 @@ void setup() {
       std::string age_text = "";
       if (age >= 0) {
         int min = age / 60;
-        if (min >= 1) age_text = format("hace %d min", min);
-        else age_text = stale ? format("hace %d s", (int) age) : "ahora";
+        if (min >= 1) age_text = format("%d min ago", min);
+        else age_text = stale ? format("%d s ago", (int) age) : "now";
       }
       lv_obj_t *age_lbl = (lv_obj_t *) lbl_age;
       set_text(age_lbl, age_text);
@@ -1645,7 +1645,7 @@ void setup() {
       set_ink(age_lbl, stale ? 0xFFFFFF : INK);
       
       std::string status = status_text->value();
-      if (status.empty() && stale) status = "Sin datos nuevos";
+      if (status.empty() && stale) status = "No new data";
       set_text((lv_obj_t *) lbl_status, status);
       
       lv_obj_t *wifi = (lv_obj_t *) lbl_wifi;

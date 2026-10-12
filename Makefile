@@ -3,7 +3,7 @@ ESPHOME := .venv/bin/esphome
 VERSION ?=
 
 .DEFAULT_GOAL := help
-.PHONY: help setup sim sim-dexcom sim-reset build flash logs check release clean
+.PHONY: help setup sim sim-dexcom sim-reset build flash logs check release clean shots
 
 help: ## List the commands
 	@grep -hE '^[a-z-]+:.*## ' $(MAKEFILE_LIST) | awk -F ':.*## ' '{printf "  make %-12s %s\n", $$1, $$2}'
@@ -45,6 +45,9 @@ release: ## Publish a firmware version: make release VERSION=v0.2
 	git tag $(VERSION)
 	git push origin $(VERSION)
 	@echo "Building on GitHub: https://github.com/albarin/glucia/actions"
+
+shots: ## Screenshots of every UI case in dev/shots/sheet.png (LANG_SHOTS=es for Spanish)
+	dev/shots.sh $(or $(LANG_SHOTS),en)
 
 clean: ## Delete build files (they are rebuilt on the next build)
 	rm -rf .esphome

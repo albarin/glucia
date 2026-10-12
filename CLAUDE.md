@@ -68,7 +68,7 @@ For a young child who can't read numbers: the whole screen takes the zone color 
 - The number stays, small, for grown-ups. Stale data: grey, sleeping face, faded number and gauge, age in a red pill.
 - Dark ink on the colors (white on green/amber is unreadable). A tap toggles night mode: black background, the zone color moves to the face.
 
-To check a UI change, run `dev/shots.sh` (and `dev/shots.sh es`) and look at `dev/shots/sheet.png`: the SDL display has `headless` and `snapshot.take` built in.
+To check a UI change, run `make shots` (and `make shots LANG_SHOTS=es`) and look at `dev/shots/sheet.png`: the SDL display has `headless` and `snapshot.take` built in.
 
 ### Contract between UI and data
 
