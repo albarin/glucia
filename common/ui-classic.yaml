@@ -110,15 +110,16 @@ lvgl:
                   text_color: 0x9CA3AF
                   text: ""
               # Last 3 hours as a line colored by zone, with the range limits as reference.
-              # The line is drawn in `render_classic` (chart_draw).
-              - label: {id: lbl_high, x: 16, y: 261, text_color: 0x9CA3AF, text: "${high_limit}"}
-              - label: {id: lbl_low,  x: 16, y: 289, text_color: 0x9CA3AF, text: "${low_limit}"}
+              # The line is drawn in `render_classic`. Light theme: on a black card, so the zone colors show.
+              - obj: {id: chart_card, x: 6, y: 240, width: 468, height: 78, radius: 14, border_width: 0, bg_color: 0x000000, clickable: false, scrollable: false}
+              - label: {id: lbl_high, x: 16, y: 264, text_color: 0x9CA3AF, text: "${high_limit}"}
+              - label: {id: lbl_low,  x: 16, y: 291, text_color: 0x9CA3AF, text: "${low_limit}"}
               - obj:
                   id: chart
                   x: 60
-                  y: 240
+                  y: 244
                   width: 406
-                  height: 72
+                  height: 70
                   radius: 0
                   pad_all: 0
                   border_width: 0
@@ -243,7 +244,6 @@ script:
           set_hidden(countdown, stale || !has_data);
 
           // Chart: what it draws lives in statics, so the draw callback can read it.
-          // Light theme: everything black (colors don't show on a colored background).
           static std::vector<int> chart_hist;
           static bool chart_mono = false;   // one color for the whole line instead of zone colors
           static uint32_t chart_mono_color = 0;
@@ -310,10 +310,12 @@ script:
               }
             }, LV_EVENT_DRAW_MAIN, nullptr);
           }
-          bool mono = inv || stale;
-          uint32_t mono_color = inv ? 0x000000 : GREY;
-          uint32_t ref = inv ? 0x000000 : 0x6B7280;
-          lv_opa_t ref_opa = inv ? LV_OPA_40 : LV_OPA_COVER;
+          // Always on black (the page or the card): zone colors, grey with stale data
+          set_hidden((lv_obj_t *) id(chart_card), !inv);
+          bool mono = stale;
+          uint32_t mono_color = GREY;
+          uint32_t ref = 0x6B7280;
+          lv_opa_t ref_opa = LV_OPA_COVER;
           if (chart_hist != id(history) || chart_mono != mono || chart_mono_color != mono_color || chart_ref != ref || chart_ref_opa != ref_opa) {
             chart_hist = id(history);
             chart_mono = mono;
@@ -323,4 +325,4 @@ script:
             lv_obj_invalidate(ch);
           }
           // Labels of the reference lines (their y in the page matches y_of for 180 and 70)
-          for (auto *l : {id(lbl_high), id(lbl_low)}) set_ink((lv_obj_t *) l, soft_ink);
+          for (auto *l : {id(lbl_high), id(lbl_low)}) set_ink((lv_obj_t *) l, 0x9CA3AF);

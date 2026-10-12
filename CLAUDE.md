@@ -147,7 +147,7 @@ Safety net: `safe_mode` + ESP-IDF rollback (on by default). If the new firmware 
 
 ## Gotchas found
 
-- The classic chart is drawn by hand in an `LV_EVENT_DRAW_MAIN` callback (`lv_draw_line` per segment, split where it crosses 70/180 so each piece has its zone color). What it draws lives in statics inside `render_classic`; `lv_obj_invalidate` only when they change. The 180/70 labels have fixed positions that match `y_of`: move them if the chart moves.
+- The classic chart is drawn by hand in an `LV_EVENT_DRAW_MAIN` callback (`lv_draw_line` per segment, split where it crosses 70/180 so each piece has its zone color). It is always drawn on black: the page in the dark theme, a black card (`chart_card`) in the light one. What it draws lives in statics inside `render_classic`; `lv_obj_invalidate` only when they change. The 180/70 labels have fixed positions that match `y_of`: move them if the chart moves.
 
 - `id(widget)` in a lambda is not an `lv_obj_t *`: cast it, `(lv_obj_t *) id(lbl_number)`, to use LVGL functions.
 - Don't name a lambda local variable like a widget: `lv_obj_t *marker = (lv_obj_t *) id(marker);` compiles but segfaults (the local shadows the global). Also avoid ids that clash with C names (`clock`, `time`): hence `sys_time`.
