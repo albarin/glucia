@@ -40,43 +40,43 @@ Processing [36m[1mglucia-shots[0m (platform: platformio/native)
 [0mCompiling .pioenvs/glucia-shots/src/esphome/core/build_info_data.o
 [0mCompiling .pioenvs/glucia-shots/src/main.o
 [0mLinking .pioenvs/glucia-shots/program
-[0m========================= [[32m[1mSUCCESS[0m] Took 1.24 seconds =========================[0m
-INFO Build Info: config_hash=0x8f9d7cb1 build_time_str=2026-10-12 16:26:18 +0200
+[0m========================= [[32m[1mSUCCESS[0m] Took 1.29 seconds =========================[0m
+INFO Build Info: config_hash=0x8496ecae build_time_str=2026-10-12 16:27:27 +0200
 INFO Successfully compiled program to path '/Users/alba/Personal/glucia/dev/.esphome/build/glucia-shots/.pioenvs/glucia-shots/program'
-[16:26:20][0;32m[I][app:060]: Running through setup()[0m
-[16:26:20][0;36m[D][lvgl:774]: Setting resolution to 480 x 320 (rotation 0)[0m
-[16:26:20][0;32m[I][app:117]: setup() finished successfully![0m
-[16:26:20][0;32m[I][app:151]: ESPHome version 2026.9.1 compiled on 2026-10-12 16:26:18 +0200[0m
-[16:26:20][0;35m[C][logger:221]: Logger:
+[16:27:29][0;32m[I][app:060]: Running through setup()[0m
+[16:27:29][0;36m[D][lvgl:774]: Setting resolution to 480 x 320 (rotation 0)[0m
+[16:27:29][0;32m[I][app:117]: setup() finished successfully![0m
+[16:27:29][0;32m[I][app:151]: ESPHome version 2026.9.1 compiled on 2026-10-12 16:27:27 +0200[0m
+[16:27:29][0;35m[C][logger:221]: Logger:
   Max Level: DEBUG
   Initial Level: DEBUG[0m
-[16:26:20][0;35m[C][logger:230]:   Task Log Buffer Slots: 64[0m
-[16:26:20][0;35m[C][sdl:043]: SDL
+[16:27:29][0;35m[C][logger:230]:   Task Log Buffer Slots: 64[0m
+[16:27:29][0;35m[C][sdl:043]: SDL
   Rotations: 0 °
   Dimensions: 480px x 320px[0m
-[16:26:20][0;35m[C][time:049]: Timezone: UTC+1:00 (DST UTC+2:00)[0m
-[16:26:20][0;35m[C][time:056]: Current time: 2026-10-12 16:26:20[0m
-[16:26:20][0;35m[C][lvgl:171]: LVGL:
+[16:27:29][0;35m[C][time:049]: Timezone: UTC+1:00 (DST UTC+2:00)[0m
+[16:27:29][0;35m[C][time:056]: Current time: 2026-10-12 16:27:29[0m
+[16:27:29][0;35m[C][lvgl:171]: LVGL:
   Display width/height: 480 x 320
   Buffer size: 100%
   Rotation: 0
   Draw rounding: 2[0m
-[16:26:20][0;35m[C][http_request:018]: HTTP Request:
+[16:27:29][0;35m[C][http_request:018]: HTTP Request:
   Timeout: 10000ms
   User-Agent: ESPHome/2026.9.1 (https://esphome.io)
   Follow redirects: YES
   Redirect limit: 3[0m
-[16:26:20][0;35m[C][mdns:262]: mDNS:
+[16:27:29][0;35m[C][mdns:262]: mDNS:
   Hostname: glucia-shots[0m
-[16:26:21][0;32m[I][snapshot:189]: Snapshot written to /Users/alba/Personal/glucia/dev/.esphome/snapshots/glucia-shots/1-in-range.bmp[0m
-[16:26:21][0;32m[I][snapshot:189]: Snapshot written to /Users/alba/Personal/glucia/dev/.esphome/snapshots/glucia-shots/2-in-range-rising.bmp[0m
-[16:26:21][0;32m[I][snapshot:189]: Snapshot written to /Users/alba/Personal/glucia/dev/.esphome/snapshots/glucia-shots/3-low-falling.bmp[0m
-[16:26:22][0;32m[I][snapshot:189]: Snapshot written to /Users/alba/Personal/glucia/dev/.esphome/snapshots/glucia-shots/4-very-low.bmp[0m
-[16:26:22][0;32m[I][snapshot:189]: Snapshot written to /Users/alba/Personal/glucia/dev/.esphome/snapshots/glucia-shots/5-high-rising.bmp[0m
-[16:26:22][0;32m[I][snapshot:189]: Snapshot written to /Users/alba/Personal/glucia/dev/.esphome/snapshots/glucia-shots/6-very-high.bmp[0m
-[16:26:23][0;32m[I][snapshot:189]: Snapshot written to /Users/alba/Personal/glucia/dev/.esphome/snapshots/glucia-shots/7-stale.bmp[0m
-[16:26:23][0;32m[I][snapshot:189]: Snapshot written to /Users/alba/Personal/glucia/dev/.esphome/snapshots/glucia-shots/8-no-data.bmp[0m
-[16:26:23][0;32m[I][snapshot:189]: Snapshot written to /Users/alba/Personal/glucia/dev/.esphome/snapshots/glucia-shots/9-night-in-range.bmp[0m
-[16:26:24][0;32m[I][snapshot:189]: Snapshot written to /Users/alba/Personal/glucia/dev/.esphome/snapshots/glucia-shots/a-night-low.bmp[0m
-[16:26:24][0;32m[I][snapshot:189]: Snapshot written to /Users/alba/Personal/glucia/dev/.esphome/snapshots/glucia-shots/b-night-high.bmp[0m
-[16:26:24][0;32m[I][snapshot:189]: Snapshot written to /Users/alba/Personal/glucia/dev/.esphome/snapshots/glucia-shots/c-night-stale.bmp[0m
+[16:27:30][0;32m[I][snapshot:189]: Snapshot written to /Users/alba/Personal/glucia/dev/.esphome/snapshots/glucia-shots/1-in-range.bmp[0m
+[16:27:31][0;32m[I][snapshot:189]: Snapshot written to /Users/alba/Personal/glucia/dev/.esphome/snapshots/glucia-shots/2-in-range-rising.bmp[0m
+[16:27:31][0;32m[I][snapshot:189]: Snapshot written to /Users/alba/Personal/glucia/dev/.esphome/snapshots/glucia-shots/3-low-falling.bmp[0m
+[16:27:31][0;32m[I][snapshot:189]: Snapshot written to /Users/alba/Personal/glucia/dev/.esphome/snapshots/glucia-shots/4-very-low.bmp[0m
+[16:27:32][0;32m[I][snapshot:189]: Snapshot written to /Users/alba/Personal/glucia/dev/.esphome/snapshots/glucia-shots/5-high-rising.bmp[0m
+[16:27:32][0;32m[I][snapshot:189]: Snapshot written to /Users/alba/Personal/glucia/dev/.esphome/snapshots/glucia-shots/6-very-high.bmp[0m
+[16:27:32][0;32m[I][snapshot:189]: Snapshot written to /Users/alba/Personal/glucia/dev/.esphome/snapshots/glucia-shots/7-stale.bmp[0m
+[16:27:33][0;32m[I][snapshot:189]: Snapshot written to /Users/alba/Personal/glucia/dev/.esphome/snapshots/glucia-shots/8-no-data.bmp[0m
+[16:27:33][0;32m[I][snapshot:189]: Snapshot written to /Users/alba/Personal/glucia/dev/.esphome/snapshots/glucia-shots/9-night-in-range.bmp[0m
+[16:27:33][0;32m[I][snapshot:189]: Snapshot written to /Users/alba/Personal/glucia/dev/.esphome/snapshots/glucia-shots/a-night-low.bmp[0m
+[16:27:33][0;32m[I][snapshot:189]: Snapshot written to /Users/alba/Personal/glucia/dev/.esphome/snapshots/glucia-shots/b-night-high.bmp[0m
+[16:27:34][0;32m[I][snapshot:189]: Snapshot written to /Users/alba/Personal/glucia/dev/.esphome/snapshots/glucia-shots/c-night-stale.bmp[0m
