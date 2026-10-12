@@ -55,6 +55,7 @@ common/
 dev/
   screenshots.yaml       # headless simulator that renders fixed cases (scenarios.yaml)
   shots.sh               # dev/shots.sh [en|es] -> dev/shots/sheet.png with every case
+  gestures.yaml          # presses each top corner via the SDL mouse and logs theme/look (opens a window)
 .github/workflows/
   firmware.yml           # on a v* tag: builds guition.yaml and publishes it
 ```

@@ -139,6 +139,8 @@ script:
           id(hold_corner) = p.y >= CORNER ? 0 : p.x < CORNER ? 1 : p.x >= lv_display_get_horizontal_resolution(nullptr) - CORNER ? 2 : 0;
           id(hold_since) = millis();
           id(hold_done) = false;
+          // Also handy on the board to check the touch orientation
+          ESP_LOGD("touch", "Press at %d,%d (corner %d)", (int) p.x, (int) p.y, id(hold_corner));
 
   - id: touch_long_press
     then:
@@ -163,7 +165,9 @@ script:
           condition:
             lambda: return id(hold_corner) != 0 && !id(hold_done) && millis() - id(hold_since) >= ${hold_ms};
           then:
-            - lambda: id(hold_done) = true;
+            - lambda: |-
+                id(hold_done) = true;
+                ESP_LOGI("touch", "Hidden gesture: %s", id(hold_corner) == 1 ? "theme" : "look");
             - if:
                 condition:
                   lambda: return id(hold_corner) == 1;

@@ -1,0 +1,39 @@
+# Headless check of the hidden gestures: presses the SDL "mouse" in each corner and logs the result.
+#   .venv/bin/esphome compile dev/gestures.yaml && dev/.esphome/build/glucia-gestures/.pioenvs/glucia-gestures/program
+substitutions:
+  headless: "false"   # the SDL touchscreen needs a window
+
+esphome:
+  name: glucia-gestures
+  on_boot:
+    priority: -100
+    then:
+      - delay: 1s
+      - lambda: 'ESP_LOGI("test", "start: mode=%s theme=%s", id(display_mode).current_option().c_str(), id(theme).current_option().c_str());'
+      - lambda: 'id(screen)->mouse_x = 20; id(screen)->mouse_y = 20; id(screen)->mouse_down = true;'
+      - delay: 6s
+      - lambda: 'id(screen)->mouse_down = false;'
+      - delay: 300ms
+      - lambda: 'ESP_LOGI("test", "after top-left: mode=%s theme=%s", id(display_mode).current_option().c_str(), id(theme).current_option().c_str());'
+      - lambda: 'id(screen)->mouse_x = 460; id(screen)->mouse_y = 20; id(screen)->mouse_down = true;'
+      - delay: 6s
+      - lambda: 'id(screen)->mouse_down = false;'
+      - delay: 300ms
+      - lambda: 'ESP_LOGI("test", "after top-right: mode=%s theme=%s", id(display_mode).current_option().c_str(), id(theme).current_option().c_str());'
+      - lambda: 'id(screen)->mouse_x = 20; id(screen)->mouse_y = 20; id(screen)->mouse_down = true;'
+      - delay: 6s
+      - lambda: 'id(screen)->mouse_down = false;'
+      - delay: 300ms
+      - lambda: 'ESP_LOGI("test", "after top-left: mode=%s theme=%s", id(display_mode).current_option().c_str(), id(theme).current_option().c_str());'
+      - lambda: 'id(screen)->mouse_x = 460; id(screen)->mouse_y = 20; id(screen)->mouse_down = true;'
+      - delay: 6s
+      - lambda: 'id(screen)->mouse_down = false;'
+      - delay: 300ms
+      - lambda: 'ESP_LOGI("test", "after top-right: mode=%s theme=%s", id(display_mode).current_option().c_str(), id(theme).current_option().c_str());'
+      - lambda: 'exit(0);'
+
+packages:
+  hardware: !include ../hardware/simulator.yaml
+  ui: !include ../common/ui.yaml
+  lang: !include ../common/lang/en.yaml
+  data: !include ../common/demo.yaml
