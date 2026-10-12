@@ -58,8 +58,7 @@ lvgl:
             bg_color: 0x000000
             scrollable: false
             on_short_click:
-              - lambda: id(inverted) = !id(inverted);
-              - script.execute: render
+              - select.next: { id: theme, cycle: true }
             on_long_press:
               - script.execute: long_press
             widgets:
@@ -93,7 +92,7 @@ lvgl:
                   bg_color: 0xFFFFFF
                   clickable: false
                   scrollable: false
-              # Face: an emoji on a disc (white by day, zone color at night)
+              # Face: an emoji on a disc (white when light, black with a zone color ring when dark)
               - obj:
                   id: face
                   x: 104
@@ -178,8 +177,8 @@ script:
           int zone = value < low ? -1 : value > high ? 1 : 0;
           const uint32_t GREY = 0x6B7280;
           uint32_t zone_color = !live ? GREY : zone < 0 ? 0xF2545B : zone > 0 ? 0xF5B83D : 0x4ADE80;
-          // Night mode (tap): black background and the zone color moves to a ring around the face
-          bool night = id(inverted);
+          // Dark theme: black background and the zone color moves to a ring around the face
+          bool night = id(theme).active_index().value_or(0) == 1;
           uint32_t bg_color = night ? 0x000000 : zone_color;
           uint32_t face_color = night ? zone_color : 0xFFFFFF;
           const uint32_t INK = night ? 0xE5E7EB : 0x1F2937;

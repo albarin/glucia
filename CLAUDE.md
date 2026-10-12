@@ -63,7 +63,8 @@ The main files only combine `packages`: hardware + ui + lang + data.
 
 ### Two looks in one firmware
 
-`ui.yaml` includes both looks (nested `packages`). Each one has its own LVGL page (`classic_page`, `kids_page`) and its own script (`render_classic`, `render_kids`); `render` shows the page of the chosen look and draws only that one. The look is the `select` "Display mode" (`Classic`/`Kids`, `restore_value`) on the local web page; the `display_mode` substitution in each main file is only the choice on first start (board: `Classic`, simulators: `Kids`). The simulator has no web page (`web_server` doesn't run on `host`): change the substitution and `make sim-reset`.
+`ui.yaml` includes both looks (nested `packages`). Each one has its own LVGL page (`classic_page`, `kids_page`) and its own script (`render_classic`, `render_kids`); `render` shows the page of the chosen look and draws only that one. The look is the `select` "Display mode" (`Classic`/`Kids`, `restore_value`) on the local web page; the `display_mode` substitution in each main file is only the choice on first start (board: `Classic`, simulators: `Kids`).
+The same goes for the `select` "Theme" (`Light`: the range color fills the screen; `Dark`: black background), with its `theme` substitution (board: `Dark`, simulators: `Light`). A tap on the screen switches it (`select.next`), so the web page and the screen always agree and it survives a reboot. The simulator has no web page (`web_server` doesn't run on `host`): change the substitution and `make sim-reset`.
 - Widget ids are global: kids widgets that mirror classic ones take a `k_` prefix (`k_number`, `k_arrow`…), and its big arrow font is `f_arrow_big`.
 - Shared fonts (`f_text`, `f_medium`, `f_icons`) live in `ui.yaml`; each look only declares its own.
 
@@ -72,9 +73,9 @@ The main files only combine `packages`: hardware + ui + lang + data.
 For a young child who can't read numbers: the whole screen takes the zone color (red low, green in range, amber high), an emoji shows it and a gauge on the left shows the level. Design rules:
 - Faces are never sad or "bad": 😊 in range, 😮 when low, 😐 when high, 😴 (grey screen) without fresh data. Diabetes care advice is to avoid judging numbers as good or bad.
 - Emoji are Noto Emoji PNGs (Apache 2.0, credited in the README), downloaded at build time from a pinned tag (`v2.047`) and stored as RGB565 + alpha images. LVGL fonts are single-color, so color emoji can only be images.
-- The emoji sits on a white disc by day so its yellow doesn't blend with the amber zone. At night the disc is black with a ring in the zone color.
+- The emoji sits on a white disc in the light theme so its yellow doesn't blend with the amber zone. In the dark theme the disc is black with a ring in the zone color.
 - The number stays, small, for grown-ups. Stale data: grey, sleeping face, faded number and gauge, age in a red pill.
-- Dark ink on the colors (white on green/amber is unreadable). A tap toggles night mode: black background, the zone color moves to the ring.
+- Dark ink on the colors (white on green/amber is unreadable). Dark theme: black background, the zone color moves to the ring.
 
 To check a UI change, run `make shots` (and `make shots LANG_SHOTS=es`) and look at `dev/shots/sheet.png` (every case in both looks): the SDL display has `headless` and `snapshot.take` built in.
 
@@ -120,12 +121,12 @@ Safety net: `safe_mode` + ESP-IDF rollback (on by default). If the new firmware 
 ## Status
 
 **Tested (on Linux, in the cloud):**
-- `simulator.yaml` builds and works: demo, inverted theme with a tap, pause and stale data with a long press.
+- `simulator.yaml` builds and works: demo, theme switch with a tap, pause and stale data with a long press.
 - `dexcom.yaml` against a test server that mimics Dexcom: login, read, expired session and re-login, wrong password with a single attempt, server down.
 
 **Tested on Alba's Mac:**
 - ESPHome 2026.9.1 in `.venv` (Python 3.13). Use `.venv/bin/esphome`.
-- `simulator.yaml` looks right: demo, countdown, inverted theme.
+- `simulator.yaml` looks right: demo, countdown, theme switch.
 - `simulator.yaml`, `simulator-dexcom.yaml` and `guition.yaml` build; `guition.yaml` with both looks is 1.6 MB (20% of flash, 34% of RAM).
 - `simulator-dexcom.yaml` against the real Dexcom Share (2026-10-12): login and readings work.
 - The `firmware.yml` Action: `v0.1` built and published the Release with the manifest and both binaries.

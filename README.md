@@ -34,14 +34,14 @@ make sim     # simulator with made-up data
 | `make clean` | Delete build files |
 | `make shots` | Screenshots of every UI case in `dev/shots/sheet.png` (`LANG_SHOTS=es` for Spanish) |
 
-On the simulator, tap the screen to invert the colors and long-press it to pause the demo. The look (`Classic` or `Kids`) is the `display_mode` substitution in `simulator.yaml`; after changing it, run `make sim-reset`.
+Tap the screen to switch between the light and dark themes. On the simulator, long-press it to pause the demo; the look (`Classic` or `Kids`) is the `display_mode` substitution in `simulator.yaml` (after changing it, run `make sim-reset`).
 
 ## Setting up the board
 
 1. Flash it once over USB with `make flash`.
 2. WiFi: connect to the `Glucia` network the board creates (password: your `ap_password`) and choose your WiFi.
 3. Dexcom: open `http://glucia.local` and enter the username and password of the **main** Dexcom account (the person wearing the sensor), with Share enabled and at least one follower.
-4. Look: on the same page, choose **Display mode** (`Classic` or `Kids`).
+4. Look: on the same page, choose **Display mode** (`Classic` or `Kids`) and **Theme** (`Light` or `Dark`).
 
 After that, the board installs new releases of this repo by itself (every 6 hours). They are published with `make release VERSION=v1.2` (it pushes a tag), and the release binaries are built with this repo's own passwords: if you fork it, set the `AP_PASSWORD` and `OTA_PASSWORD` secrets and point `update: source:` in `hardware/guition.yaml` to your fork.
 

@@ -10,6 +10,7 @@ substitutions:
   low_limit: "70"     # mg/dL, below: red
   high_limit: "180"   # mg/dL, above: amber
   display_mode: "Classic"   # until it is changed on the web page: Classic or Kids
+  theme: "Dark"             # until it is changed on the web page or with a tap: Light or Dark
 
 packages:
   classic: !include ui-classic.yaml
@@ -42,10 +43,6 @@ globals:
   - id: connected
     type: bool
     initial_value: "false"
-  # Inverted theme (classic) / night mode (kids). A tap toggles it.
-  - id: inverted
-    type: bool
-    initial_value: "false"
 
 # Shown on the local web page. The name is fixed in English: the stored choice is keyed by it.
 select:
@@ -54,6 +51,16 @@ select:
     name: "Display mode"
     options: ["Classic", "Kids"]
     initial_option: "${display_mode}"
+    optimistic: true
+    restore_value: true
+    on_value:
+      - script.execute: render
+  # Light: the range color fills the screen. Dark: black background. A tap on the screen switches it.
+  - platform: template
+    id: theme
+    name: "Theme"
+    options: ["Light", "Dark"]
+    initial_option: "${theme}"
     optimistic: true
     restore_value: true
     on_value:

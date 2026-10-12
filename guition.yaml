@@ -3,6 +3,7 @@ substitutions:
   version: "dev"
   # Look on first start; then it is chosen at http://glucia.local (Classic or Kids)
   display_mode: Classic
+  theme: Dark   # Light or Dark
 
 esphome:
   name: glucia

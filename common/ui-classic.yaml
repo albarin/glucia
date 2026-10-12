@@ -28,7 +28,7 @@ lvgl:
     - id: classic_page
       bg_color: 0x000000
       widgets:
-        # Full-screen background: receives touches and changes color with the inverted theme.
+        # Full-screen background: receives touches and takes the range color with the light theme.
         - obj:
             id: bg
             x: 0
@@ -41,8 +41,7 @@ lvgl:
             bg_color: 0x000000
             scrollable: false
             on_short_click:
-              - lambda: id(inverted) = !id(inverted);
-              - script.execute: render
+              - select.next: { id: theme, cycle: true }
             on_long_press:
               - script.execute: long_press
             widgets:
@@ -141,7 +140,8 @@ script:
           };
           const uint32_t GREY = 0x6B7280;
           uint32_t color = (has_data && !stale) ? color_of(value) : GREY;
-          bool inv = id(inverted) && has_data && !stale;
+          // Light theme: the range color becomes the background (only with fresh data)
+          bool inv = id(theme).active_index().value_or(0) == 0 && has_data && !stale;
           uint32_t bg_color = inv ? color : 0x000000;
           uint32_t ink = inv ? 0x000000 : 0xFFFFFF;
           uint32_t soft_ink = inv ? 0x000000 : 0x9CA3AF;

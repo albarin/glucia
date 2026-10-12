@@ -1,7 +1,8 @@
-# Look: Classic or Kids. The simulator has no web page: after changing it, `make sim-reset`
+# Look (Classic or Kids) and theme. The simulator has no web page: after changing it, `make sim-reset`
 # (the stored choice wins over this one).
 substitutions:
   display_mode: Kids
+  theme: Light   # Light or Dark (a tap switches it)
 
 esphome:
   name: glucia-sim

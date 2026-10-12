@@ -27,10 +27,10 @@ globals:
     type: std::string
 
 script:
-  # Every case, by day and at night, in the current look
+  # Every case, light and dark, in the current look
   - id: shoot_all
     then:
-      - lambda: id(inverted) = false;
+      - select.set: { id: theme, option: Light }
       - script.execute: { id: set_case, value: 118, previous: 117, trend_now: 4, age_s: 60, status: "" }
       - delay: 300ms
       - snapshot.take: { id: screen, filename: !lambda 'return id(shot_prefix) + "1-in-range.bmp";' }
@@ -55,19 +55,19 @@ script:
       - script.execute: { id: set_case, value: 0, previous: 0, trend_now: 0, age_s: 0, status: "${t_dexcom_no_readings}" }
       - delay: 300ms
       - snapshot.take: { id: screen, filename: !lambda 'return id(shot_prefix) + "8-no-data.bmp";' }
-      - lambda: id(inverted) = true;
+      - select.set: { id: theme, option: Dark }
       - script.execute: { id: set_case, value: 118, previous: 117, trend_now: 4, age_s: 60, status: "" }
       - delay: 300ms
-      - snapshot.take: { id: screen, filename: !lambda 'return id(shot_prefix) + "9-night-in-range.bmp";' }
+      - snapshot.take: { id: screen, filename: !lambda 'return id(shot_prefix) + "9-dark-in-range.bmp";' }
       - script.execute: { id: set_case, value: 64, previous: 72, trend_now: 6, age_s: 30, status: "" }
       - delay: 300ms
-      - snapshot.take: { id: screen, filename: !lambda 'return id(shot_prefix) + "a-night-low.bmp";' }
+      - snapshot.take: { id: screen, filename: !lambda 'return id(shot_prefix) + "a-dark-low.bmp";' }
       - script.execute: { id: set_case, value: 215, previous: 205, trend_now: 2, age_s: 200, status: "" }
       - delay: 300ms
-      - snapshot.take: { id: screen, filename: !lambda 'return id(shot_prefix) + "b-night-high.bmp";' }
+      - snapshot.take: { id: screen, filename: !lambda 'return id(shot_prefix) + "b-dark-high.bmp";' }
       - script.execute: { id: set_case, value: 130, previous: 128, trend_now: 4, age_s: 1500, status: "" }
       - delay: 300ms
-      - snapshot.take: { id: screen, filename: !lambda 'return id(shot_prefix) + "c-night-stale.bmp";' }
+      - snapshot.take: { id: screen, filename: !lambda 'return id(shot_prefix) + "c-dark-stale.bmp";' }
 
 packages:
   hardware: !include ../hardware/simulator.yaml
