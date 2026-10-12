@@ -32,6 +32,7 @@ make sim     # simulator with made-up data
 | `make check` | Build everything |
 | `make release VERSION=v1.2` | Publish a firmware version (only from a clean `main` in sync with GitHub) |
 | `make clean` | Delete build files |
+| `make shots` | Screenshots of every UI case in `dev/shots/sheet.png` (`LANG_SHOTS=es` for Spanish) |
 
 On the simulator, tap the screen to invert the colors and long-press it to pause the demo.
 
