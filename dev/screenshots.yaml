@@ -19,6 +19,9 @@ esphome:
       - lambda: id(shot_prefix) = "kids-";
       - script.execute: shoot_all
       - script.wait: shoot_all
+      - script.execute: open_settings
+      - delay: 300ms
+      - snapshot.take: { id: screen, filename: "settings.bmp" }
       - lambda: exit(0);
 
 globals:

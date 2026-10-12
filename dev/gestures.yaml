@@ -1,4 +1,4 @@
-# Headless check of the hidden gestures: presses the SDL "mouse" in each corner and logs the result.
+# Check of the hidden gestures and the settings screen: presses the SDL "mouse" and logs the result.
 #   .venv/bin/esphome compile dev/gestures.yaml && dev/.esphome/build/glucia-gestures/.pioenvs/glucia-gestures/program
 substitutions:
   headless: "false"   # the SDL touchscreen needs a window
@@ -11,25 +11,40 @@ esphome:
       - delay: 1s
       - lambda: 'ESP_LOGI("test", "start: mode=%s theme=%s", id(display_mode).current_option().c_str(), id(theme).current_option().c_str());'
       - lambda: 'id(screen)->mouse_x = 20; id(screen)->mouse_y = 20; id(screen)->mouse_down = true;'
-      - delay: 6s
+      - delay: 6000ms
       - lambda: 'id(screen)->mouse_down = false;'
       - delay: 300ms
-      - lambda: 'ESP_LOGI("test", "after top-left: mode=%s theme=%s", id(display_mode).current_option().c_str(), id(theme).current_option().c_str());'
-      - lambda: 'id(screen)->mouse_x = 460; id(screen)->mouse_y = 20; id(screen)->mouse_down = true;'
-      - delay: 6s
+      - lambda: 'ESP_LOGI("test", "%s: mode=%s theme=%s settings=%d", "hold top-left 6 s (theme)", id(display_mode).current_option().c_str(), id(theme).current_option().c_str(), id(in_settings));'
+      - lambda: 'id(screen)->mouse_x = 410; id(screen)->mouse_y = 60; id(screen)->mouse_down = true;'
+      - delay: 6000ms
       - lambda: 'id(screen)->mouse_down = false;'
       - delay: 300ms
-      - lambda: 'ESP_LOGI("test", "after top-right: mode=%s theme=%s", id(display_mode).current_option().c_str(), id(theme).current_option().c_str());'
-      - lambda: 'id(screen)->mouse_x = 20; id(screen)->mouse_y = 20; id(screen)->mouse_down = true;'
-      - delay: 6s
+      - lambda: 'ESP_LOGI("test", "%s: mode=%s theme=%s settings=%d", "hold top-right 6 s, off the gear (look)", id(display_mode).current_option().c_str(), id(theme).current_option().c_str(), id(in_settings));'
+      - lambda: 'id(screen)->mouse_x = 450; id(screen)->mouse_y = 24; id(screen)->mouse_down = true;'
+      - delay: 300ms
       - lambda: 'id(screen)->mouse_down = false;'
       - delay: 300ms
-      - lambda: 'ESP_LOGI("test", "after top-left: mode=%s theme=%s", id(display_mode).current_option().c_str(), id(theme).current_option().c_str());'
-      - lambda: 'id(screen)->mouse_x = 460; id(screen)->mouse_y = 20; id(screen)->mouse_down = true;'
-      - delay: 6s
+      - lambda: 'ESP_LOGI("test", "%s: mode=%s theme=%s settings=%d", "tap the gear (nothing)", id(display_mode).current_option().c_str(), id(theme).current_option().c_str(), id(in_settings));'
+      - lambda: 'id(screen)->mouse_x = 450; id(screen)->mouse_y = 24; id(screen)->mouse_down = true;'
+      - delay: 2600ms
       - lambda: 'id(screen)->mouse_down = false;'
       - delay: 300ms
-      - lambda: 'ESP_LOGI("test", "after top-right: mode=%s theme=%s", id(display_mode).current_option().c_str(), id(theme).current_option().c_str());'
+      - lambda: 'ESP_LOGI("test", "%s: mode=%s theme=%s settings=%d", "hold the gear 2.5 s (settings)", id(display_mode).current_option().c_str(), id(theme).current_option().c_str(), id(in_settings));'
+      - lambda: 'id(screen)->mouse_x = 250; id(screen)->mouse_y = 100; id(screen)->mouse_down = true;'
+      - delay: 300ms
+      - lambda: 'id(screen)->mouse_down = false;'
+      - delay: 300ms
+      - lambda: 'ESP_LOGI("test", "%s: mode=%s theme=%s settings=%d", "tap Classic", id(display_mode).current_option().c_str(), id(theme).current_option().c_str(), id(in_settings));'
+      - lambda: 'id(screen)->mouse_x = 250; id(screen)->mouse_y = 170; id(screen)->mouse_down = true;'
+      - delay: 300ms
+      - lambda: 'id(screen)->mouse_down = false;'
+      - delay: 300ms
+      - lambda: 'ESP_LOGI("test", "%s: mode=%s theme=%s settings=%d", "tap Light", id(display_mode).current_option().c_str(), id(theme).current_option().c_str(), id(in_settings));'
+      - lambda: 'id(screen)->mouse_x = 30; id(screen)->mouse_y = 28; id(screen)->mouse_down = true;'
+      - delay: 300ms
+      - lambda: 'id(screen)->mouse_down = false;'
+      - delay: 300ms
+      - lambda: 'ESP_LOGI("test", "%s: mode=%s theme=%s settings=%d", "tap back", id(display_mode).current_option().c_str(), id(theme).current_option().c_str(), id(in_settings));'
       - lambda: 'exit(0);'
 
 packages:

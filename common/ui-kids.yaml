@@ -155,11 +155,34 @@ lvgl:
               - label:
                   id: k_wifi
                   align: TOP_RIGHT
-                  x: -14
+                  x: -58
                   y: 8
                   text_font: f_icons
                   text_color: 0x1F2937
                   text: "\U000F05AA"
+              # Settings: hold for 2 s (a tap does nothing, so a child doesn't open them by accident)
+              - obj:
+                  id: k_gear
+                  align: TOP_RIGHT
+                  x: -4
+                  y: 0
+                  width: 52
+                  height: 48
+                  pad_all: 0
+                  border_width: 0
+                  bg_opa: 0%
+                  scrollable: false
+                  on_press:
+                    - script.execute: gear_down
+                  on_long_press_repeat:
+                    - script.execute: touch_held
+                  widgets:
+                    - label:
+                        id: k_gear_icon
+                        align: CENTER
+                        text_font: f_icons
+                        text_color: 0x1F2937
+                        text: "\U000F0493"
 
 script:
   - id: render_kids
@@ -293,3 +316,4 @@ script:
           lv_obj_t *wifi = (lv_obj_t *) id(k_wifi);
           set_text(wifi, id(connected) ? "\U000F05A9" : "\U000F05AA");
           set_ink(wifi, INK);
+          set_ink((lv_obj_t *) id(k_gear_icon), INK);

@@ -57,11 +57,34 @@ lvgl:
               - label:
                   id: lbl_wifi
                   align: TOP_RIGHT
-                  x: -14
+                  x: -58
                   y: 8
                   text_font: f_icons
                   text_color: 0x9CA3AF
                   text: "\U000F05AA"
+              # Settings: hold for 2 s (a tap does nothing, so a child doesn't open them by accident)
+              - obj:
+                  id: gear
+                  align: TOP_RIGHT
+                  x: -4
+                  y: 0
+                  width: 52
+                  height: 48
+                  pad_all: 0
+                  border_width: 0
+                  bg_opa: 0%
+                  scrollable: false
+                  on_press:
+                    - script.execute: gear_down
+                  on_long_press_repeat:
+                    - script.execute: touch_held
+                  widgets:
+                    - label:
+                        id: gear_icon
+                        align: CENTER
+                        text_font: f_icons
+                        text_color: 0x9CA3AF
+                        text: "\U000F0493"
               - label:
                   id: lbl_number
                   x: 10
@@ -230,6 +253,7 @@ script:
           lv_obj_t *wifi = (lv_obj_t *) id(lbl_wifi);
           set_text(wifi, id(connected) ? "\U000F05A9" : "\U000F05AA");
           set_ink(wifi, id(connected) ? soft_ink : 0xF2545B);
+          set_ink((lv_obj_t *) id(gear_icon), soft_ink);
 
           // Countdown bar until the next reading
           lv_obj_t *countdown = (lv_obj_t *) id(countdown_bar);

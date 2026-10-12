@@ -1,0 +1,142 @@
+# Settings screen: look, theme and brightness. Part of ui.yaml.
+# Opened by holding the gear on the main screen (`gear_down` in ui.yaml); closes with the
+# back arrow or on its own after a while without touches. The buttons only change the
+# selects and the `backlight` light, so the web page and this screen always agree.
+
+lvgl:
+  pages:
+    - id: settings_page
+      bg_color: 0x000000
+      widgets:
+        - obj:
+            id: settings_back
+            x: 4
+            y: 4
+            width: 56
+            height: 48
+            pad_all: 0
+            border_width: 0
+            bg_opa: 0%
+            scrollable: false
+            on_click:
+              - script.execute: close_settings
+            widgets:
+              - label:
+                  align: CENTER
+                  text_font: f_icons
+                  text_color: 0xE5E7EB
+                  text: "\U000F004D"   # arrow-left
+        - label:
+            x: 68
+            y: 16
+            text_color: 0xE5E7EB
+            text: "${t_settings}"
+
+        - label: {x: 24, y: 88, text_color: 0x9CA3AF, text: "${t_mode}"}
+        - button:
+            id: btn_classic
+            x: 190
+            y: 74
+            width: 134
+            height: 52
+            radius: 12
+            on_click:
+              - select.set: { id: display_mode, option: Classic }
+            widgets:
+              - label: {id: lbl_classic, align: CENTER, text: "${t_classic}"}
+        - button:
+            id: btn_kids
+            x: 334
+            y: 74
+            width: 134
+            height: 52
+            radius: 12
+            on_click:
+              - select.set: { id: display_mode, option: Kids }
+            widgets:
+              - label: {id: lbl_kids, align: CENTER, text: "${t_kids}"}
+
+        - label: {x: 24, y: 160, text_color: 0x9CA3AF, text: "${t_theme}"}
+        - button:
+            id: btn_light
+            x: 190
+            y: 146
+            width: 134
+            height: 52
+            radius: 12
+            on_click:
+              - select.set: { id: theme, option: Light }
+            widgets:
+              - label: {id: lbl_light, align: CENTER, text: "${t_light}"}
+        - button:
+            id: btn_dark
+            x: 334
+            y: 146
+            width: 134
+            height: 52
+            radius: 12
+            on_click:
+              - select.set: { id: theme, option: Dark }
+            widgets:
+              - label: {id: lbl_dark, align: CENTER, text: "${t_dark}"}
+
+        - label: {x: 24, y: 228, text_color: 0x9CA3AF, text: "${t_brightness}"}
+        # 10% at least: a black screen can't be fixed from the screen itself
+        - slider:
+            id: sl_brightness
+            x: 204
+            y: 234
+            width: 250
+            height: 14
+            min_value: 10
+            max_value: 100
+            value: 100
+            bg_color: 0x374151
+            indicator:
+              bg_color: 0xE5E7EB
+            knob:
+              bg_color: 0xFFFFFF
+              pad_all: 6
+            on_value:
+              - light.turn_on:
+                  id: backlight
+                  brightness: !lambda return x / 100.0;
+                  transition_length: 0s
+
+        - label:
+            x: 24
+            y: 284
+            text_color: 0x6B7280
+            text: "${t_settings_hint}"
+
+script:
+  - id: open_settings
+    then:
+      - lambda: |-
+          id(in_settings) = true;
+          int pct = (int) (id(backlight).current_values.get_brightness() * 100 + 0.5);
+          lv_slider_set_value((lv_obj_t *) id(sl_brightness), std::max(10, pct), LV_ANIM_OFF);
+      - lvgl.page.show: settings_page
+      - script.execute: render_settings
+
+  - id: close_settings
+    then:
+      - lambda: id(in_settings) = false;
+      - script.execute: render
+
+  # Marks the chosen look and theme
+  - id: render_settings
+    then:
+      - lambda: |-
+          auto mark = [](lv_obj_t *btn, lv_obj_t *lbl, bool on) {
+            lv_color_t bg = lv_color_hex(on ? 0xE5E7EB : 0x1F2937);
+            lv_color_t ink = lv_color_hex(on ? 0x000000 : 0xE5E7EB);
+            if (!lv_color_eq(lv_obj_get_style_bg_color(btn, LV_PART_MAIN), bg)) lv_obj_set_style_bg_color(btn, bg, 0);
+            if (!lv_color_eq(lv_obj_get_style_text_color(lbl, LV_PART_MAIN), ink)) lv_obj_set_style_text_color(lbl, ink, 0);
+          };
+          bool kids = id(display_mode).active_index().value_or(0) == 1;
+          bool dark = id(theme).active_index().value_or(0) == 1;
+          mark((lv_obj_t *) id(btn_classic), (lv_obj_t *) id(lbl_classic), !kids);
+          mark((lv_obj_t *) id(btn_kids), (lv_obj_t *) id(lbl_kids), kids);
+          mark((lv_obj_t *) id(btn_light), (lv_obj_t *) id(lbl_light), !dark);
+          mark((lv_obj_t *) id(btn_dark), (lv_obj_t *) id(lbl_dark), dark);

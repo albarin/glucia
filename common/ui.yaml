@@ -5,6 +5,8 @@
 #   - the script `long_press`
 # and a language package (lang/en.yaml or lang/es.yaml) for the texts.
 # Each look has its own LVGL page and its own render script; `render` draws the chosen one.
+# The settings screen (ui-settings.yaml) opens by holding the gear for 2 s.
+# Needs a `light` with id `backlight` (hardware package) for the brightness.
 
 substitutions:
   low_limit: "70"     # mg/dL, below: red
@@ -14,10 +16,13 @@ substitutions:
   theme: "Dark"             # until it is changed on the web page or with a gesture: Light or Dark
   hold_corner_px: "80"      # hidden gestures: size of the top corners (px)
   hold_ms: "5000"           # hidden gestures: how long to hold (ms)
+  gear_hold_ms: "2000"      # how long to hold the gear to open the settings (ms)
+  settings_timeout_ms: "60000"   # the settings close on their own after this long without touches
 
 packages:
   classic: !include ui-classic.yaml
   kids: !include ui-kids.yaml
+  settings: !include ui-settings.yaml
 
 globals:
   # Readings in mg/dL, one slot per `period`, placed by time: back() is the newest,
@@ -47,7 +52,11 @@ globals:
   - id: connected
     type: bool
     initial_value: "false"
-  # Hidden gestures: which top corner the finger went down on (0 none, 1 left, 2 right),
+  # Is the settings screen showing? Then `render` leaves the page alone.
+  - id: in_settings
+    type: bool
+    initial_value: "false"
+  # Hidden gestures: which top corner the finger went down on (0 none, 1 left, 2 right, 3 the gear),
   # since when (millis) and whether this press already did its action.
   - id: hold_corner
     type: int
@@ -100,6 +109,8 @@ font:
     glyphs: [
       "\U000F05A9",  # wifi
       "\U000F05AA",  # wifi-off
+      "\U000F0493",  # cog (settings)
+      "\U000F004D",  # arrow-left (back)
     ]
 
 lvgl:
@@ -112,21 +123,27 @@ script:
     then:
       - if:
           condition:
-            lambda: return id(display_mode).active_index().value_or(0) == 1;
+            lambda: return id(in_settings);
           then:
-            - if:
-                condition:
-                  lambda: return !id(kids_page)->is_showing();
-                then:
-                  - lvgl.page.show: kids_page
-            - script.execute: render_kids
+            - script.execute: render_settings
           else:
             - if:
                 condition:
-                  lambda: return !id(classic_page)->is_showing();
+                  lambda: return id(display_mode).active_index().value_or(0) == 1;
                 then:
-                  - lvgl.page.show: classic_page
-            - script.execute: render_classic
+                  - if:
+                      condition:
+                        lambda: return !id(kids_page)->is_showing();
+                      then:
+                        - lvgl.page.show: kids_page
+                  - script.execute: render_kids
+                else:
+                  - if:
+                      condition:
+                        lambda: return !id(classic_page)->is_showing();
+                      then:
+                        - lvgl.page.show: classic_page
+                  - script.execute: render_classic
 
   # Hidden gestures, so a child can't trigger them by accident:
   #   hold the top-left corner for 5 s  -> light/dark theme
@@ -144,6 +161,14 @@ script:
           // Also handy on the board to check the touch orientation
           ESP_LOGD("touch", "Press at %d,%d (corner %d)", (int) p.x, (int) p.y, id(hold_corner));
 
+  # The gear: same as a corner, but it opens the settings after ${gear_hold_ms} ms
+  - id: gear_down
+    then:
+      - lambda: |-
+          id(hold_corner) = 3;
+          id(hold_since) = millis();
+          id(hold_done) = false;
+
   - id: touch_long_press
     then:
       - if:
@@ -156,7 +181,8 @@ script:
   - id: touch_held
     then:
       - lambda: |-
-          if (id(hold_corner) == 0) return;
+          // The gear tracks its own press (LVGL stops the repeats if the finger leaves it)
+          if (id(hold_corner) == 0 || id(hold_corner) == 3) return;
           // Sliding out of the corner cancels it
           lv_point_t p;
           lv_indev_get_point(lv_indev_active(), &p);
@@ -165,21 +191,38 @@ script:
           if (corner != id(hold_corner)) id(hold_corner) = 0;
       - if:
           condition:
-            lambda: return id(hold_corner) != 0 && !id(hold_done) && millis() - id(hold_since) >= ${hold_ms};
+            lambda: |-
+              if (id(hold_corner) == 0 || id(hold_done)) return false;
+              return millis() - id(hold_since) >= (id(hold_corner) == 3 ? ${gear_hold_ms} : ${hold_ms});
           then:
             - lambda: |-
                 id(hold_done) = true;
-                ESP_LOGI("touch", "Hidden gesture: %s", id(hold_corner) == 1 ? "theme" : "look");
+                static const char *WHAT[] = {"", "theme", "look", "settings"};
+                ESP_LOGI("touch", "Hold: %s", WHAT[id(hold_corner)]);
             - if:
                 condition:
-                  lambda: return id(hold_corner) == 1;
+                  lambda: return id(hold_corner) == 3;
                 then:
-                  - select.next: { id: theme, cycle: true }
+                  - script.execute: open_settings
                 else:
-                  - select.next: { id: display_mode, cycle: true }
+                  - if:
+                      condition:
+                        lambda: return id(hold_corner) == 1;
+                      then:
+                        - select.next: { id: theme, cycle: true }
+                      else:
+                        - select.next: { id: display_mode, cycle: true }
 
 interval:
   # The countdown and the age of the reading change on their own over time.
   - interval: 1s
     then:
       - script.execute: render
+  # Nobody touched the settings for a while: back to the glucose
+  - interval: 5s
+    then:
+      - if:
+          condition:
+            lambda: return id(in_settings) && lv_display_get_inactive_time(nullptr) > ${settings_timeout_ms};
+          then:
+            - script.execute: close_settings

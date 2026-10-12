@@ -49,6 +49,7 @@ common/
   ui.yaml                # shared globals and fonts, "Display mode" select, `render` -> chosen look
   ui-classic.yaml        # classic look: big number, arrow, countdown, 3 h chart
   ui-kids.yaml           # kids look: zone color, emoji face, level gauge, arrow
+  ui-settings.yaml       # settings screen (hold the gear 2 s): look, theme, brightness
   demo.yaml              # made-up readings every 15 s
   dexcom.yaml            # Dexcom Share login + read every 60 s
   lang/en.yaml, es.yaml  # on-screen texts (substitutions t_*)
@@ -66,6 +67,7 @@ The main files only combine `packages`: hardware + ui + lang + data.
 
 `ui.yaml` includes both looks (nested `packages`). Each one has its own LVGL page (`classic_page`, `kids_page`) and its own script (`render_classic`, `render_kids`); `render` shows the page of the chosen look and draws only that one. The look is the `select` "Display mode" (`Classic`/`Kids`, `restore_value`) on the local web page; the `display_mode` substitution in each main file is only the choice on first start (board: `Classic`, simulators: `Kids`).
 The same goes for the `select` "Theme" (`Light`: the range color fills the screen; `Dark`: black background), with its `theme` substitution (board: `Dark`, simulators: `Light`). The simulator has no web page (`web_server` doesn't run on `host`): use the gestures, or change the substitution and `make sim-reset`.
+- Settings screen (`ui-settings.yaml`, its own page): opened by holding the gear (top right) for 2 s, a tap does nothing. Buttons only call `select.set` and the slider drives the `backlight` light (min 10%), so it always agrees with the web page. While it shows, `in_settings` keeps `render` from switching pages; it closes with the back arrow or after 1 min without touches (`lv_display_get_inactive_time`). The simulator has a fake `backlight` (template output that only logs).
 - Hidden gestures, so a child can't trigger them by accident (a plain tap does nothing): hold the top-left corner (80 px) for 5 s → theme; the top-right corner → look. They call `select.next`, so the web page and the screen always agree and the choice survives a reboot. Scripts `touch_down` / `touch_long_press` / `touch_held` in `ui.yaml`; sliding out of the corner cancels. A long press anywhere else runs the data source's `long_press`.
 - Widget ids are global: kids widgets that mirror classic ones take a `k_` prefix (`k_number`, `k_arrow`…), and its big arrow font is `f_arrow_big`.
 - Shared fonts (`f_text`, `f_medium`, `f_icons`) live in `ui.yaml`; each look only declares its own.

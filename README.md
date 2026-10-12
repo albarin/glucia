@@ -34,7 +34,9 @@ make sim     # simulator with made-up data
 | `make clean` | Delete build files |
 | `make shots` | Screenshots of every UI case in `dev/shots/sheet.png` (`LANG_SHOTS=es` for Spanish) |
 
-On the screen itself, two hidden gestures (so a child can't trigger them by accident):
+On the screen itself, **hold the gear** (top right) for 2 seconds to open the settings: look, theme and brightness. They close on their own after a minute.
+
+There are also two hidden gestures (so a child can't trigger them by accident):
 
 - Hold the **top-left** corner for 5 seconds: switch between the light and dark themes.
 - Hold the **top-right** corner for 5 seconds: switch between the classic and kids looks.

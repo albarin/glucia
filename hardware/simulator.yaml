@@ -28,3 +28,18 @@ display:
 
 touchscreen:
   - platform: sdl
+
+# No real backlight: a light that only logs, so the brightness setting works the same as on the board
+output:
+  - platform: template
+    id: backlight_pwm
+    type: float
+    write_action:
+      - lambda: ESP_LOGV("sim", "Brightness %.0f%%", state * 100);
+
+light:
+  - platform: monochromatic
+    id: backlight
+    name: "Brightness"
+    output: backlight_pwm
+    restore_mode: RESTORE_DEFAULT_ON
