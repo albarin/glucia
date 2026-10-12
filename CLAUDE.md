@@ -46,8 +46,9 @@ hardware/
   guition.yaml           # ESP32-S3, PSRAM, QSPI, mipi_spi, touch, brightness, WiFi + rescue AP,
                          # local web page, OTA, automatic updates
 common/
-  ui.yaml                # classic UI: big number, arrow, countdown, last 8 readings
-  ui-kids.yaml           # kids UI: zone color, emoji face, level gauge, arrow (same contract)
+  ui.yaml                # shared globals and fonts, "Display mode" select, `render` -> chosen look
+  ui-classic.yaml        # classic look: big number, arrow, countdown, last 8 readings
+  ui-kids.yaml           # kids look: zone color, emoji face, level gauge, arrow
   demo.yaml              # made-up readings every 15 s
   dexcom.yaml            # Dexcom Share login + read every 60 s
   lang/en.yaml, es.yaml  # on-screen texts (substitutions t_*)
@@ -60,7 +61,13 @@ dev/
 
 The main files only combine `packages`: hardware + ui + lang + data.
 
-### Kids UI (`ui-kids.yaml`)
+### Two looks in one firmware
+
+`ui.yaml` includes both looks (nested `packages`). Each one has its own LVGL page (`classic_page`, `kids_page`) and its own script (`render_classic`, `render_kids`); `render` shows the page of the chosen look and draws only that one. The look is the `select` "Display mode" (`Classic`/`Kids`, `restore_value`) on the local web page; the `display_mode` substitution in each main file is only the choice on first start (board: `Classic`, simulators: `Kids`). The simulator has no web page (`web_server` doesn't run on `host`): change the substitution and `make sim-reset`.
+- Widget ids are global: kids widgets that mirror classic ones take a `k_` prefix (`k_number`, `k_arrow`…), and its big arrow font is `f_arrow_big`.
+- Shared fonts (`f_text`, `f_medium`, `f_icons`) live in `ui.yaml`; each look only declares its own.
+
+### Kids look (`ui-kids.yaml`)
 
 For a young child who can't read numbers: the whole screen takes the zone color (red low, green in range, amber high), an emoji shows it and a gauge on the left shows the level. Design rules:
 - Faces are never sad or "bad": 😊 in range, 😮 when low, 😐 when high, 😴 (grey screen) without fresh data. Diabetes care advice is to avoid judging numbers as good or bad.
@@ -69,11 +76,11 @@ For a young child who can't read numbers: the whole screen takes the zone color 
 - The number stays, small, for grown-ups. Stale data: grey, sleeping face, faded number and gauge, age in a red pill.
 - Dark ink on the colors (white on green/amber is unreadable). A tap toggles night mode: black background, the zone color moves to the ring.
 
-To check a UI change, run `make shots` (and `make shots LANG_SHOTS=es`) and look at `dev/shots/sheet.png`: the SDL display has `headless` and `snapshot.take` built in.
+To check a UI change, run `make shots` (and `make shots LANG_SHOTS=es`) and look at `dev/shots/sheet.png` (every case in both looks): the SDL display has `headless` and `snapshot.take` built in.
 
 ### Contract between UI and data
 
-`ui.yaml` doesn't know where the data comes from. A data source fills these globals and calls `script.execute: render`:
+The UI doesn't know where the data comes from. A data source fills these globals and calls `script.execute: render`:
 
 - `history` (`std::vector<int>`, 8 items, newest at `[7]`, 0 = no data)
 - `last_ts` (time of the reading in Unix seconds, the one Dexcom reports, not when it arrived)
@@ -119,7 +126,7 @@ Safety net: `safe_mode` + ESP-IDF rollback (on by default). If the new firmware 
 **Tested on Alba's Mac:**
 - ESPHome 2026.9.1 in `.venv` (Python 3.13). Use `.venv/bin/esphome`.
 - `simulator.yaml` looks right: demo, countdown, inverted theme.
-- `simulator.yaml`, `simulator-dexcom.yaml` and `guition.yaml` build; `guition.yaml` is 1.3 MB (16% of flash, 34% of RAM).
+- `simulator.yaml`, `simulator-dexcom.yaml` and `guition.yaml` build; `guition.yaml` with both looks is 1.6 MB (20% of flash, 34% of RAM).
 - `simulator-dexcom.yaml` against the real Dexcom Share (2026-10-12): login and readings work.
 - The `firmware.yml` Action: `v0.1` built and published the Release with the manifest and both binaries.
 

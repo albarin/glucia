@@ -2,12 +2,13 @@
 substitutions:
   dexcom_username: !secret dexcom_username
   dexcom_password: !secret dexcom_password
+  display_mode: Kids   # Classic or Kids (after changing it: make sim-reset)
 
 esphome:
   name: glucia-sim-dexcom
 
 packages:
   hardware: !include hardware/simulator.yaml
-  ui: !include common/ui-kids.yaml   # or ui.yaml (classic)
+  ui: !include common/ui.yaml
   lang: !include common/lang/en.yaml   # or es.yaml
   data: !include common/dexcom.yaml

@@ -1,8 +1,13 @@
+# Look: Classic or Kids. The simulator has no web page: after changing it, `make sim-reset`
+# (the stored choice wins over this one).
+substitutions:
+  display_mode: Kids
+
 esphome:
   name: glucia-sim
 
 packages:
   hardware: !include hardware/simulator.yaml
-  ui: !include common/ui-kids.yaml   # or ui.yaml (classic)
+  ui: !include common/ui.yaml
   lang: !include common/lang/en.yaml   # or es.yaml
   data: !include common/demo.yaml

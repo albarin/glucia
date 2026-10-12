@@ -1,6 +1,6 @@
 # Glucía
 
-A desktop display that shows glucose readings from a Dexcom sensor: the current value, its trend arrow, the change since the last reading, a countdown to the next one and the last 8 readings as bars. Inspired by [Gluvi](https://migluvi.com).
+A desktop display that shows glucose readings from a Dexcom sensor: the current value, its trend arrow, the change since the last reading, a countdown to the next one and the last 8 readings as bars. It also has a kids look for children who can't read numbers yet: the whole screen takes the range color, with a friendly face and a level gauge. Inspired by [Gluvi](https://migluvi.com).
 
 It runs on its own: an ESP32-S3 board reads Dexcom Share directly over WiFi, with no Home Assistant or server. Built with [ESPHome](https://esphome.io) and LVGL.
 
@@ -34,13 +34,14 @@ make sim     # simulator with made-up data
 | `make clean` | Delete build files |
 | `make shots` | Screenshots of every UI case in `dev/shots/sheet.png` (`LANG_SHOTS=es` for Spanish) |
 
-On the simulator, tap the screen to invert the colors and long-press it to pause the demo.
+On the simulator, tap the screen to invert the colors and long-press it to pause the demo. The look (`Classic` or `Kids`) is the `display_mode` substitution in `simulator.yaml`; after changing it, run `make sim-reset`.
 
 ## Setting up the board
 
 1. Flash it once over USB with `make flash`.
 2. WiFi: connect to the `Glucia` network the board creates (password: your `ap_password`) and choose your WiFi.
 3. Dexcom: open `http://glucia.local` and enter the username and password of the **main** Dexcom account (the person wearing the sensor), with Share enabled and at least one follower.
+4. Look: on the same page, choose **Display mode** (`Classic` or `Kids`).
 
 After that, the board installs new releases of this repo by itself (every 6 hours). They are published with `make release VERSION=v1.2` (it pushes a tag), and the release binaries are built with this repo's own passwords: if you fork it, set the `AP_PASSWORD` and `OTA_PASSWORD` secrets and point `update: source:` in `hardware/guition.yaml` to your fork.
 

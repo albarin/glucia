@@ -1,50 +1,9 @@
 # Kids UI: a friendly emoji on a full-screen color, a level gauge and a big arrow.
-# Same contract as ui.yaml (same globals, `render` script, needs `period` and `long_press`).
-
-substitutions:
-  low_limit: "70"     # mg/dL, below: red
-  high_limit: "180"   # mg/dL, above: amber
-
-globals:
-  - id: history
-    type: std::vector<int>
-    initial_value: "std::vector<int>(8, 0)"
-  - id: last_ts
-    type: int64_t
-    initial_value: "0"
-  - id: delta
-    type: int
-    initial_value: "0"
-  - id: delta_ok
-    type: bool
-    initial_value: "false"
-  - id: trend
-    type: int
-    initial_value: "0"
-  - id: status_text
-    type: std::string
-    initial_value: '""'
-  - id: connected
-    type: bool
-    initial_value: "false"
-  - id: inverted
-    type: bool
-    initial_value: "false"
+# Part of ui.yaml (globals, shared fonts and `render` live there).
 
 font:
-  - file: "gfonts://Roboto@500"
-    id: f_medium
-    size: 44
-    bpp: 4
-    glyphs: "0123456789+-"
-  - file: "gfonts://Roboto@400"
-    id: f_text
-    size: 20
-    bpp: 4
-    glyphsets: [GF_Latin_Kernel]
-    glyphs: "áéíóúüñÁÉÍÓÚÜÑ¿¡·"
   - file: "https://github.com/Templarian/MaterialDesign-Webfont/raw/v7.4.47/fonts/materialdesignicons-webfont.ttf"
-    id: f_arrow
+    id: f_arrow_big
     size: 120
     bpp: 4
     glyphs: [
@@ -57,14 +16,6 @@ font:
       "\U000F013C",  # chevron-double-down  (falling fast)
       "\U000F02D6",  # help                 (not computable)
       "\U000F0374",  # minus                (no trend)
-    ]
-  - file: "https://github.com/Templarian/MaterialDesign-Webfont/raw/v7.4.47/fonts/materialdesignicons-webfont.ttf"
-    id: f_icons
-    size: 26
-    bpp: 4
-    glyphs: [
-      "\U000F05A9",  # wifi
-      "\U000F05AA",  # wifi-off
     ]
 
 # Faces: Noto Emoji by Google (Apache License 2.0), https://github.com/googlefonts/noto-emoji
@@ -91,13 +42,12 @@ image:
     resize: 156x156
 
 lvgl:
-  default_font: f_text
   pages:
-    - id: main_page
+    - id: kids_page
       bg_color: 0x000000
       widgets:
         - obj:
-            id: bg
+            id: k_bg
             x: 0
             y: 0
             width: 100%
@@ -162,27 +112,27 @@ lvgl:
                         align: CENTER
                         src: emoji_ok
               - label:
-                  id: lbl_arrow
+                  id: k_arrow
                   x: 330
                   y: 40
-                  text_font: f_arrow
+                  text_font: f_arrow_big
                   text_color: 0x1F2937
                   text: ""
               - label:
-                  id: lbl_number
+                  id: k_number
                   x: 336
                   y: 186
                   text_font: f_medium
                   text_color: 0x1F2937
                   text: ""
               - label:
-                  id: lbl_unit
+                  id: k_unit
                   x: 340
                   y: 236
                   text_color: 0x1F2937
                   text: "mg/dL"
               - label:
-                  id: lbl_age
+                  id: k_age
                   x: 332
                   y: 260
                   pad_left: 8
@@ -195,13 +145,13 @@ lvgl:
                   text_color: 0x1F2937
                   text: ""
               - label:
-                  id: lbl_status
+                  id: k_status
                   x: 92
                   y: 10
                   text_color: 0x1F2937
                   text: "${t_starting}"
               - label:
-                  id: lbl_wifi
+                  id: k_wifi
                   align: TOP_RIGHT
                   x: -14
                   y: 8
@@ -210,7 +160,7 @@ lvgl:
                   text: "\U000F05AA"
 
 script:
-  - id: render
+  - id: render_kids
     then:
       - lambda: |-
           const int low = ${low_limit};
@@ -262,7 +212,7 @@ script:
             return std::string(buf);
           };
 
-          set_fill(id(bg), bg_color);
+          set_fill(id(k_bg), bg_color);
           // Day: white disc. Night: black disc with a ring in the zone color (a yellow
           // disc would swallow the yellow emoji).
           lv_obj_t *fc = (lv_obj_t *) id(face);
@@ -279,7 +229,7 @@ script:
           // Without fresh data the gauge fades: it isn't pointing at anything
           lv_opa_t gauge_opa = live ? LV_OPA_COVER : LV_OPA_40;
           if (lv_obj_get_style_opa(gg, LV_PART_MAIN) != gauge_opa) lv_obj_set_style_opa(gg, gauge_opa, 0);
-          for (auto *l : {id(lbl_arrow), id(lbl_number), id(lbl_unit), id(lbl_status)})
+          for (auto *l : {id(k_arrow), id(k_number), id(k_unit), id(k_status)})
             set_ink((lv_obj_t *) l, INK);
 
           // Gauge marker: piecewise scale so each band has a readable size.
@@ -309,11 +259,11 @@ script:
           if (lv_image_get_src(fi) != emoji->get_lv_image_dsc()) lv_image_set_src(fi, emoji->get_lv_image_dsc());
 
           // Trend arrow
-          set_text((lv_obj_t *) id(lbl_arrow), live ? ARROWS[tr] : "");
+          set_text((lv_obj_t *) id(k_arrow), live ? ARROWS[tr] : "");
 
           // Number, for grown-ups
-          set_text((lv_obj_t *) id(lbl_number), has_data ? std::to_string(value) : "");
-          set_hidden((lv_obj_t *) id(lbl_unit), !has_data);
+          set_text((lv_obj_t *) id(k_number), has_data ? std::to_string(value) : "");
+          set_hidden((lv_obj_t *) id(k_unit), !has_data);
 
           std::string age_text = "";
           if (age >= 0) {
@@ -321,14 +271,14 @@ script:
             if (min >= 1) age_text = format("${t_minutes_ago}", min);
             else age_text = stale ? format("${t_seconds_ago}", (int) age) : "${t_now}";
           }
-          lv_obj_t *age_lbl = (lv_obj_t *) id(lbl_age);
+          lv_obj_t *age_lbl = (lv_obj_t *) id(k_age);
           set_text(age_lbl, age_text);
           // Old data: the number fades and the age stands out
           lv_opa_t num_opa = stale ? LV_OPA_40 : LV_OPA_COVER;
-          lv_obj_t *num = (lv_obj_t *) id(lbl_number);
+          lv_obj_t *num = (lv_obj_t *) id(k_number);
           if (lv_obj_get_style_text_opa(num, LV_PART_MAIN) != num_opa) {
             lv_obj_set_style_text_opa(num, num_opa, 0);
-            lv_obj_set_style_text_opa((lv_obj_t *) id(lbl_unit), num_opa, 0);
+            lv_obj_set_style_text_opa((lv_obj_t *) id(k_unit), num_opa, 0);
           }
           lv_opa_t pill = stale ? LV_OPA_COVER : LV_OPA_TRANSP;
           if (lv_obj_get_style_bg_opa(age_lbl, LV_PART_MAIN) != pill) lv_obj_set_style_bg_opa(age_lbl, pill, 0);
@@ -336,13 +286,8 @@ script:
 
           std::string status = id(status_text);
           if (status.empty() && stale) status = "${t_no_new_data}";
-          set_text((lv_obj_t *) id(lbl_status), status);
+          set_text((lv_obj_t *) id(k_status), status);
 
-          lv_obj_t *wifi = (lv_obj_t *) id(lbl_wifi);
+          lv_obj_t *wifi = (lv_obj_t *) id(k_wifi);
           set_text(wifi, id(connected) ? "\U000F05A9" : "\U000F05AA");
           set_ink(wifi, INK);
-
-interval:
-  - interval: 1s
-    then:
-      - script.execute: render

@@ -10,7 +10,7 @@ mkdir -p dev/shots
 from pathlib import Path
 from PIL import Image, ImageDraw
 shots = sorted(Path("dev/.esphome/snapshots/glucia-shots").glob("*.bmp"))
-cols, w, h, label = 2, 480, 320, 22
+cols, w, h, label = 4, 480, 320, 22
 rows = (len(shots) + cols - 1) // cols
 sheet = Image.new("RGB", (cols * (w + 10) + 10, rows * (h + label + 10) + 10), "white")
 d = ImageDraw.Draw(sheet)

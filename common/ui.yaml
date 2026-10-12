@@ -1,0 +1,113 @@
+# UI: both looks (classic and kids) in the same firmware, chosen from the local web page.
+# Same on the simulator and on the board.
+# Needs the data package (demo.yaml or dexcom.yaml) to define:
+#   - the global `period` (seconds between readings)
+#   - the script `long_press`
+# and a language package (lang/en.yaml or lang/es.yaml) for the texts.
+# Each look has its own LVGL page and its own render script; `render` draws the chosen one.
+
+substitutions:
+  low_limit: "70"     # mg/dL, below: red
+  high_limit: "180"   # mg/dL, above: amber
+  display_mode: "Classic"   # until it is changed on the web page: Classic or Kids
+
+packages:
+  classic: !include ui-classic.yaml
+  kids: !include ui-kids.yaml
+
+globals:
+  # Last 8 readings in mg/dL. [0] is the oldest, [7] the newest. 0 = no data.
+  - id: history
+    type: std::vector<int>
+    initial_value: "std::vector<int>(8, 0)"
+  # Time of the last reading, in Unix seconds (the one Dexcom reports, not when it arrived).
+  - id: last_ts
+    type: int64_t
+    initial_value: "0"
+  - id: delta
+    type: int
+    initial_value: "0"
+  - id: delta_ok
+    type: bool
+    initial_value: "false"
+  # Trend as Dexcom numbers it: 1 rising fast ... 4 steady ... 7 falling fast.
+  - id: trend
+    type: int
+    initial_value: "0"
+  # Error or status message shown at the top left.
+  - id: status_text
+    type: std::string
+    initial_value: '""'
+  # Did the last request to the data source work?
+  - id: connected
+    type: bool
+    initial_value: "false"
+  # Inverted theme (classic) / night mode (kids). A tap toggles it.
+  - id: inverted
+    type: bool
+    initial_value: "false"
+
+# Shown on the local web page. The name is fixed in English: the stored choice is keyed by it.
+select:
+  - platform: template
+    id: display_mode
+    name: "Display mode"
+    options: ["Classic", "Kids"]
+    initial_option: "${display_mode}"
+    optimistic: true
+    restore_value: true
+    on_value:
+      - script.execute: render
+
+font:
+  - file: "gfonts://Roboto@500"
+    id: f_medium
+    size: 44
+    bpp: 4
+    glyphs: "0123456789+-"
+  - file: "gfonts://Roboto@400"
+    id: f_text
+    size: 20
+    bpp: 4
+    glyphsets: [GF_Latin_Kernel]
+    glyphs: "áéíóúüñÁÉÍÓÚÜÑ¿¡·"
+  - file: "https://github.com/Templarian/MaterialDesign-Webfont/raw/v7.4.47/fonts/materialdesignicons-webfont.ttf"
+    id: f_icons
+    size: 26
+    bpp: 4
+    glyphs: [
+      "\U000F05A9",  # wifi
+      "\U000F05AA",  # wifi-off
+    ]
+
+lvgl:
+  default_font: f_text
+
+script:
+  # Draws the globals on screen. Called when a reading arrives and once per second.
+  # Only the page on screen is drawn; switching looks shows the other page.
+  - id: render
+    then:
+      - if:
+          condition:
+            lambda: return id(display_mode).active_index().value_or(0) == 1;
+          then:
+            - if:
+                condition:
+                  lambda: return !id(kids_page)->is_showing();
+                then:
+                  - lvgl.page.show: kids_page
+            - script.execute: render_kids
+          else:
+            - if:
+                condition:
+                  lambda: return !id(classic_page)->is_showing();
+                then:
+                  - lvgl.page.show: classic_page
+            - script.execute: render_classic
+
+interval:
+  # The countdown and the age of the reading change on their own over time.
+  - interval: 1s
+    then:
+      - script.execute: render

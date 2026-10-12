@@ -1,45 +1,5 @@
-# UI: fonts, screen layout and drawing logic.
-# Same on the simulator and on the board.
-# Needs the data package (demo.yaml or dexcom.yaml) to define:
-#   - the global `period` (seconds between readings)
-#   - the script `long_press`
-# and a language package (lang/en.yaml or lang/es.yaml) for the texts.
-
-substitutions:
-  low_limit: "70"     # mg/dL, below: red
-  high_limit: "180"   # mg/dL, above: amber
-
-globals:
-  # Last 8 readings in mg/dL. [0] is the oldest, [7] the newest. 0 = no data.
-  - id: history
-    type: std::vector<int>
-    initial_value: "std::vector<int>(8, 0)"
-  # Time of the last reading, in Unix seconds (the one Dexcom reports, not when it arrived).
-  - id: last_ts
-    type: int64_t
-    initial_value: "0"
-  - id: delta
-    type: int
-    initial_value: "0"
-  - id: delta_ok
-    type: bool
-    initial_value: "false"
-  # Trend as Dexcom numbers it: 1 rising fast ... 4 steady ... 7 falling fast.
-  - id: trend
-    type: int
-    initial_value: "0"
-  # Error or status message shown at the top left.
-  - id: status_text
-    type: std::string
-    initial_value: '""'
-  # Did the last request to the data source work?
-  - id: connected
-    type: bool
-    initial_value: "false"
-  # Inverted theme: the range color becomes the background.
-  - id: inverted
-    type: bool
-    initial_value: "false"
+# Classic UI: big number, arrow, change, countdown and the last 8 readings as bars.
+# Part of ui.yaml (globals, shared fonts and `render` live there).
 
 font:
   - file: "gfonts://Roboto@700"
@@ -47,17 +7,6 @@ font:
     size: 150
     bpp: 4
     glyphs: "0123456789-"
-  - file: "gfonts://Roboto@500"
-    id: f_medium
-    size: 44
-    bpp: 4
-    glyphs: "0123456789+-"
-  - file: "gfonts://Roboto@400"
-    id: f_text
-    size: 20
-    bpp: 4
-    glyphsets: [GF_Latin_Kernel]
-    glyphs: "áéíóúüñÁÉÍÓÚÜÑ¿¡·"
   - file: "https://github.com/Templarian/MaterialDesign-Webfont/raw/v7.4.47/fonts/materialdesignicons-webfont.ttf"
     id: f_arrow
     size: 96
@@ -73,19 +22,10 @@ font:
       "\U000F02D6",  # help                 (not computable)
       "\U000F0374",  # minus                (no trend)
     ]
-  - file: "https://github.com/Templarian/MaterialDesign-Webfont/raw/v7.4.47/fonts/materialdesignicons-webfont.ttf"
-    id: f_icons
-    size: 26
-    bpp: 4
-    glyphs: [
-      "\U000F05A9",  # wifi
-      "\U000F05AA",  # wifi-off
-    ]
 
 lvgl:
-  default_font: f_text
   pages:
-    - id: main_page
+    - id: classic_page
       bg_color: 0x000000
       widgets:
         # Full-screen background: receives touches and changes color with the inverted theme.
@@ -178,8 +118,7 @@ lvgl:
               - obj: {id: bar_7, x: 416, y: 300, width: 50, height: 4, radius: 3, border_width: 0, bg_color: 0x333333, clickable: false, scrollable: false}
 
 script:
-  # Draws the globals on screen. Called when a reading arrives and once per second.
-  - id: render
+  - id: render_classic
     then:
       - lambda: |-
           const int low = ${low_limit};
@@ -314,9 +253,3 @@ script:
             lv_opa_t opa = (inv && v <= 0) ? LV_OPA_20 : LV_OPA_COVER;
             if (lv_obj_get_style_bg_opa(bars[i], LV_PART_MAIN) != opa) lv_obj_set_style_bg_opa(bars[i], opa, 0);
           }
-
-interval:
-  # The countdown and the age of the reading change on their own over time.
-  - interval: 1s
-    then:
-      - script.execute: render
